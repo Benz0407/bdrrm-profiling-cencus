@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/census/census_form.dart';
 import 'package:mobile/screens/main_screen.dart';
 import 'package:mobile/widgets/census_header_widget.dart';
 
@@ -246,7 +247,10 @@ Future<void> fetchHouseholds() async {
                     ),
                   ),
                   onPressed: () {
-                    // create function
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CensusForm()),
+                    );
                   },
                 ),
               ],
