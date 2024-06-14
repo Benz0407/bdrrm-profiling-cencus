@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/census/census_data.dart';
+import 'package:mobile/model/household_amenities.dart';
 import 'package:mobile/model/household_member.dart';
+import 'package:mobile/model/household_model.dart';
 import 'package:mobile/services/form_service.dart';
 import 'package:mobile/widgets/amenities_characteristics_form_widget.dart';
 import 'package:mobile/widgets/head_form_widget.dart';
@@ -15,7 +17,14 @@ class CensusForm extends StatefulWidget {
 }
 
 class _CensusFormState extends State<CensusForm> {
+   
+  Household householdHead = Household();
+  HouseholdAmenities householdHeadAmenities = HouseholdAmenities();
   List<HouseholdMember> householdMembers = [];
+  List<GlobalKey<HouseholdMemberFormState>> householdMemberFormKeys = [];
+
+  final GlobalKey<HouseholdHeadFormState> householdHeadFormKey = GlobalKey<HouseholdHeadFormState>();
+  final GlobalKey<HouseholdAmenitiesFormState> householdAmenitiesFormKey = GlobalKey<HouseholdAmenitiesFormState>();
 
   @override
   void initState() {
@@ -26,12 +35,24 @@ class _CensusFormState extends State<CensusForm> {
   void addHouseholdMember() {
     setState(() {
       householdMembers.add(HouseholdMember());
+      householdMemberFormKeys.add(GlobalKey<HouseholdMemberFormState>());
+
+      householdHeadFormKey.currentState?.updateHead();
+      householdAmenitiesFormKey.currentState?.updateAmenities();
+
+    // the form will not reset
+    for (var key in householdMemberFormKeys) {
+      key.currentState?.updateMember();
+    }
+    
+
     });
   }
 
   void removeHouseholdMember(int index) {
     setState(() {
       householdMembers.removeAt(index);
+      householdMemberFormKeys.removeAt(index);
     });
   }
 
@@ -40,8 +61,16 @@ class _CensusFormState extends State<CensusForm> {
       householdMembers[index] = member;
     });
   }
-
-  
+  void updateHouseholdHead(Household head) {
+    setState(() {
+      householdHead = head;
+    });
+  }
+  void updateHouseholdAmenities(HouseholdAmenities amenities) {
+    setState(() {
+      householdHeadAmenities = amenities;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,13 +124,24 @@ class _CensusFormState extends State<CensusForm> {
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
-                    const HouseholdHeadForm(),
+                    // const HouseholdHeadForm(),
+
+                    HouseholdHeadForm(
+                      head: householdHead,
+                      key: householdHeadFormKey,
+                      onRemove: () {
+                        // Handle the removal of the household head if necessary
+                      },
+                      onUpdate: updateHouseholdHead,
+                    ),
+
+
                     Column(
                       children: householdMembers.asMap().entries.map((entry) {
                         int index = entry.key;
                         HouseholdMember member = entry.value;
                         return HouseholdMemberForm(
-                          key: UniqueKey(),
+                          key: householdMemberFormKeys[index],
                           index: index + 1,
                           member: member,
                           onRemove: () => removeHouseholdMember(index),
@@ -117,7 +157,9 @@ class _CensusFormState extends State<CensusForm> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ElevatedButton.icon(
-                            onPressed: addHouseholdMember,
+                            onPressed: () {
+                              addHouseholdMember();
+                            },
                             icon: const Icon(Icons.add, color: Colors.white),
                             label: const Text('Add Household Member'),
                             style: ElevatedButton.styleFrom(
@@ -141,7 +183,15 @@ class _CensusFormState extends State<CensusForm> {
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
-                    const HouseholdAmenitiesForm(),
+                    // const HouseholdAmenitiesForm(),
+                     HouseholdAmenitiesForm(
+                      amenities: householdHeadAmenities,
+                      key: householdAmenitiesFormKey,
+                      onRemove: () {
+                        // Handle the removal of the household head if necessary
+                      },
+                      onUpdate: updateHouseholdAmenities,
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Row(
@@ -149,17 +199,27 @@ class _CensusFormState extends State<CensusForm> {
                         children: [
                           ElevatedButton.icon(
                             onPressed: () {
-                              // ApiService().saveDataToDatabase({
-                              //   'household': {
-                              //     'name':
-                              //         householdHeadName, // Replace with actual data from your form
-                              //     'address': householdHeadAddress,
-                              //     // Include other household data here...
-                              //   },
-                              //   'members': householdMembers
-                              //       .map((member) => member.toJson())
-                              //       .toList(),
-                              // });
+                              for (var key in householdMemberFormKeys) {
+                                key.currentState?.updateMember();
+                              }
+                              // Create a Household instance from your form data and save
+                              // Household household = Household(
+                              //   id: 7, // Set ID as needed, or handle auto-increment on the server side
+                              //   name: 'dummy name muna', // Replace with actual data from your form
+                              //   // Assign other form fields to corresponding properties
+                              //   lot: 'selectedLot',
+                              //   zone: 'selectedZone',
+                              //   age: '25',
+                              //   gender: 'Male',
+                              //   occupation: 'IT',
+                              //   number: '0909334396',
+                              //   civilStatus: 'Single', 
+                              //   dateOfBirth: '',
+                              //   religion: 'Catholic', 
+                              //   specialGroup: 'Senior', 
+                              // );
+
+                              // ApiService().saveHouseholdData(household);
                             },
                             icon: const Icon(Icons.save, color: Colors.white),
                             label: const Text('Save'),

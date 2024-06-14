@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/model/household_amenities.dart';
 import 'package:mobile/util/responsive.dart';
 
 class HouseholdAmenitiesForm extends StatefulWidget {
-  const HouseholdAmenitiesForm({super.key});
+  final HouseholdAmenities amenities;
+  final VoidCallback onRemove;
+  final ValueChanged<HouseholdAmenities> onUpdate;
+  const HouseholdAmenitiesForm(
+      {super.key,
+      required this.amenities,
+      required this.onRemove,
+      required this.onUpdate});
 
   @override
-  State<HouseholdAmenitiesForm> createState() => _HouseholdAmenitiesFormState();
+  State<HouseholdAmenitiesForm> createState() => HouseholdAmenitiesFormState();
 }
 
-class _HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
+class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
   String? _sourceOfWater;
   String? _garbageDisposal;
   String? _toiletFacility;
@@ -16,6 +24,9 @@ class _HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
   String? _meansOfCommunication;
   String? _hhWith;
   String? _hhWithElectricity;
+  String? _houseStatus;
+  late TextEditingController _incomeController = TextEditingController();
+  late GlobalKey<FormState> _formKey;
 
   final List<String> _sourceOfWaterOptions = [
     'Community Water System (Owned)',
@@ -58,26 +69,64 @@ class _HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
     'Fishpond'
   ];
 
+  final List<String> _houseStatusOptions = [
+    'Good',
+    'Bad',
+  ];
+
   final List<String> _hhWithElectricityOptions = ['Yes', 'No'];
 
   @override
+  void initState() {
+    super.initState();
+    _formKey = GlobalKey<FormState>();
+    _sourceOfWater = widget.amenities.waterSource;
+    _garbageDisposal = widget.amenities.garbageDisposal;
+    _toiletFacility = widget.amenities.toiletFacility;
+    _constructionMaterials = widget.amenities.housingMaterial;
+    _hhWith = widget.amenities.hhWith;
+    _hhWithElectricity = widget.amenities.hhWithElectricity;
+    _houseStatus = widget.amenities.houseStatus;
+    _incomeController = TextEditingController(text: widget.amenities.income);
+  }
+
+  void updateAmenities() {
+    widget.onUpdate(
+      HouseholdAmenities(
+        waterSource: _sourceOfWater,
+        garbageDisposal: _garbageDisposal,
+        toiletFacility: _toiletFacility,
+        housingMaterial: _constructionMaterials,
+        communication: _meansOfCommunication,
+        hhWith: _hhWith,
+        hhWithElectricity: _hhWithElectricity,
+        houseStatus: _houseStatus,
+        income: _incomeController.text,
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 20),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            if (Responsive.isDesktop(context)) {
-              return buildDesktopLayout();
-            } else if (Responsive.isTablet(context)) {
-              return buildTabletLayout();
-            } else {
-              return buildMobileLayout();
-            }
-          },
-        ),
-      ],
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 20),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (Responsive.isDesktop(context)) {
+                return buildDesktopLayout();
+              } else if (Responsive.isTablet(context)) {
+                return buildTabletLayout();
+              } else {
+                return buildMobileLayout();
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -140,6 +189,17 @@ class _HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
         ),
         const SizedBox(height: 10),
         buildDropdown(
+          'House Status',
+          _houseStatus,
+          _houseStatusOptions,
+          (newValue) {
+            setState(() {
+              _houseStatus = newValue;
+            });
+          },
+        ),
+        const SizedBox(height: 10),
+        buildDropdown(
           'HH with',
           _hhWith,
           _hhWithOptions,
@@ -159,6 +219,14 @@ class _HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
               _hhWithElectricity = newValue;
             });
           },
+        ),
+        const SizedBox(height: 10),
+        Flexible(
+          child: TextFormField(
+            controller: _incomeController,
+            decoration: const InputDecoration(
+                labelText: 'Income', border: OutlineInputBorder()),
+          ),
         ),
       ],
     );
@@ -242,6 +310,19 @@ class _HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
         const SizedBox(height: 10),
         Row(
           children: [
+            Expanded(
+              child: buildDropdown(
+                'House Status',
+                _houseStatus,
+                _houseStatusOptions,
+                (newValue) {
+                  setState(() {
+                    _houseStatus = newValue;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
             Expanded(
               child: buildDropdown(
                 'HH with',
@@ -339,6 +420,17 @@ class _HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _meansOfCommunication = newValue;
+                  });
+                },
+              ),
+              const SizedBox(height: 10),
+              buildDropdown(
+                'House Status',
+                _houseStatus,
+                _houseStatusOptions,
+                (newValue) {
+                  setState(() {
+                    _houseStatus = newValue;
                   });
                 },
               ),

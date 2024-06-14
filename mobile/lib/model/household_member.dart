@@ -28,4 +28,6 @@ class HouseholdMember {
     this.lot,
     this.zone,
   });
+
+  toJson() {}
 }

@@ -1,23 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/model/household_model.dart';
 import 'package:mobile/util/responsive.dart';
+
 class HouseholdHeadForm extends StatefulWidget {
-  const HouseholdHeadForm({super.key});
+  final Household head;
+  final VoidCallback onRemove;
+  final ValueChanged<Household> onUpdate;
+  const HouseholdHeadForm(
+      {super.key,
+      required this.onUpdate,
+      required this.onRemove,
+      required this.head});
 
   @override
-  State<HouseholdHeadForm> createState() => _HouseholdHeadFormState();
+  State<HouseholdHeadForm> createState() => HouseholdHeadFormState();
 }
 
-class _HouseholdHeadFormState extends State<HouseholdHeadForm> {
-  final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _middleNameController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _genderController = TextEditingController();
-  final TextEditingController _specialGroupController = TextEditingController();
-  final TextEditingController _numberController = TextEditingController();
-  final TextEditingController _occupationController = TextEditingController();
+class HouseholdHeadFormState extends State<HouseholdHeadForm> {
+  late TextEditingController _dateController = TextEditingController();
+  late TextEditingController _nameController = TextEditingController();
+  late TextEditingController _ageController = TextEditingController();
+  late TextEditingController _genderController = TextEditingController();
+  late TextEditingController _specialGroupController = TextEditingController();
+  late TextEditingController _numberController = TextEditingController();
+  late TextEditingController _occupationController = TextEditingController();
+  late GlobalKey<FormState> _formKey;
 
   String? selectedLot;
   String? selectedZone;
@@ -25,11 +33,45 @@ class _HouseholdHeadFormState extends State<HouseholdHeadForm> {
   String? selectedCivilStatus;
 
   @override
+  void initState() {
+    super.initState();
+    _formKey = GlobalKey<FormState>();
+    _nameController = TextEditingController(text: widget.head.name);
+    _ageController = TextEditingController(text: widget.head.age);
+    _dateController = TextEditingController(text: widget.head.dateOfBirth);
+    _genderController = TextEditingController(text: widget.head.gender);
+    _specialGroupController =
+        TextEditingController(text: widget.head.specialGroup);
+    _numberController = TextEditingController(text: widget.head.number);
+    _occupationController = TextEditingController(text: widget.head.occupation);
+    selectedLot = widget.head.lot;
+    selectedZone = widget.head.zone;
+    selectedReligion = widget.head.religion;
+    selectedCivilStatus = widget.head.civilStatus;
+  }
+
+  void updateHead() {
+    widget.onUpdate(
+      Household(
+        name: _nameController.text,
+        age: _ageController.text,
+        dateOfBirth: _dateController.text,
+        gender: _genderController.text,
+        religion: selectedReligion,
+        specialGroup: _specialGroupController.text,
+        number: _numberController.text,
+        civilStatus: selectedCivilStatus,
+        occupation: _occupationController.text,
+        lot: selectedLot,
+        zone: selectedZone,
+      ),
+    );
+  }
+
+  @override
   void dispose() {
     _dateController.dispose();
-    _lastNameController.dispose();
-    _firstNameController.dispose();
-    _middleNameController.dispose();
+    _nameController.dispose();
     _ageController.dispose();
     _genderController.dispose();
     _specialGroupController.dispose();
@@ -56,15 +98,22 @@ class _HouseholdHeadFormState extends State<HouseholdHeadForm> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (Responsive.isDesktop(context)) {
-          return buildDesktopLayout();
-        } else if (Responsive.isTablet(context)) {
-          return buildTabletLayout();
-        } else {
-          return buildMobileLayout();
-        }
+        return Form(
+          key: _formKey,
+          child: _buildLayoutForScreenSize(context),
+        );
       },
     );
+  }
+
+  Widget _buildLayoutForScreenSize(BuildContext context) {
+    if (Responsive.isDesktop(context)) {
+      return buildDesktopLayout();
+    } else if (Responsive.isTablet(context)) {
+      return buildTabletLayout();
+    } else {
+      return buildMobileLayout();
+    }
   }
 
   Widget buildMobileLayout() {
@@ -121,8 +170,8 @@ class _HouseholdHeadFormState extends State<HouseholdHeadForm> {
   Widget buildLotAndZone() {
     return Container(
       constraints: BoxConstraints(
-      maxWidth: MediaQuery.of(context).size.width * 0.3,
-      ), 
+        maxWidth: MediaQuery.of(context).size.width * 0.3,
+      ),
       child: Row(
         children: [
           Flexible(
@@ -178,26 +227,9 @@ class _HouseholdHeadFormState extends State<HouseholdHeadForm> {
       children: [
         Flexible(
           child: TextFormField(
-            controller: _lastNameController,
+            controller: _nameController,
             decoration: const InputDecoration(
-                labelText: 'Last Name', border: OutlineInputBorder()),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Flexible(
-          child: TextFormField(
-            controller: _firstNameController,
-            decoration: const InputDecoration(
-                labelText: 'Given/First Name',
-                border: OutlineInputBorder()),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Flexible(
-          child: TextFormField(
-            controller: _middleNameController,
-            decoration: const InputDecoration(
-                labelText: 'Middle Name', border: OutlineInputBorder()),
+                labelText: 'Full name', border: OutlineInputBorder()),
           ),
         ),
       ],

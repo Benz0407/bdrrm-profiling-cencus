@@ -1,28 +1,31 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:mobile/model/household_member.dart';
+import 'package:mobile/model/household_model.dart';
 
 class ApiService {
-  Future<void> saveDataToDatabase(Map<String, dynamic> data) async {
-    const url =
-        'http://127.0.0.1:90/BDRRM/create_household.php'; // Replace with your actual PHP file URL
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(data),
-    );
+  static const baseUrl = 'http://127.0.0.1:90/BDRRM/create_household.php';
+  Future<void> addHousehold(Map<String, dynamic> householdData) async {
+    try {
+      final response = await http.post(
+        Uri.parse(baseUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'action': 'addHousehold',
+          ...householdData,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      if (responseData['success']) {
-        // Data saved successfully
-        print(responseData['message']);
+      if (response.statusCode == 201) {
+        print('Household added successfully');
       } else {
-        // Error saving data
-        print(responseData['message']);
+        print('Failed to add household: ${response.body}');
       }
-    } else {
-      // HTTP request failed
-      print('Failed to save data. Error code: ${response.statusCode}');
+    } catch (e) {
+      print('Error adding household: $e');
     }
   }
+
 }

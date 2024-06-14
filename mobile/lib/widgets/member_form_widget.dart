@@ -18,10 +18,13 @@ class HouseholdMemberForm extends StatefulWidget {
   });
 
   @override
-  State<HouseholdMemberForm> createState() => _HouseholdMemberFormState();
+  State<HouseholdMemberForm> createState() => HouseholdMemberFormState();
+
+ 
 }
 
-class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
+class HouseholdMemberFormState extends State<HouseholdMemberForm> {
+  
   late TextEditingController _lastNameController;
   late TextEditingController _firstNameController;
   late TextEditingController _middleNameController;
@@ -32,6 +35,8 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
   late TextEditingController _numberController;
   late TextEditingController _occupationController;
 
+   late GlobalKey<FormState> _formKey;
+
   String? selectedLot;
   String? selectedZone;
   String? selectedReligion;
@@ -40,15 +45,19 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
   @override
   void initState() {
     super.initState();
+    _formKey = GlobalKey<FormState>();
     _lastNameController = TextEditingController(text: widget.member.lastName);
     _firstNameController = TextEditingController(text: widget.member.firstName);
-    _middleNameController = TextEditingController(text: widget.member.middleName);
+    _middleNameController =
+        TextEditingController(text: widget.member.middleName);
     _ageController = TextEditingController(text: widget.member.age);
     _dateController = TextEditingController(text: widget.member.dateOfBirth);
     _genderController = TextEditingController(text: widget.member.gender);
-    _specialGroupController = TextEditingController(text: widget.member.specialGroup);
+    _specialGroupController =
+        TextEditingController(text: widget.member.specialGroup);
     _numberController = TextEditingController(text: widget.member.number);
-    _occupationController = TextEditingController(text: widget.member.occupation);
+    _occupationController =
+        TextEditingController(text: widget.member.occupation);
 
     selectedLot = widget.member.lot;
     selectedZone = widget.member.zone;
@@ -70,7 +79,7 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
     super.dispose();
   }
 
-  void _updateMember() {
+  void updateMember() {
     widget.onUpdate(
       HouseholdMember(
         lastName: _lastNameController.text,
@@ -91,19 +100,26 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (Responsive.isDesktop(context)) {
-          return buildDesktopLayout();
-        } else if (Responsive.isTablet(context)) {
-          return buildTabletLayout();
-        } else {
-          return buildMobileLayout();
-        }
-      },
-    );
+Widget build(BuildContext context) {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      return Form(
+        key: _formKey,
+        child: _buildLayoutForScreenSize(context),
+      );
+    },
+  );
+}
+
+Widget _buildLayoutForScreenSize(BuildContext context) {
+  if (Responsive.isDesktop(context)) {
+    return buildDesktopLayout();
+  } else if (Responsive.isTablet(context)) {
+    return buildTabletLayout();
+  } else {
+    return buildMobileLayout();
   }
+}
 
   Widget buildMobileLayout() {
     return Column(
@@ -190,8 +206,8 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
   Widget buildLotAndZone() {
     return Container(
       constraints: BoxConstraints(
-      maxWidth: MediaQuery.of(context).size.width * 0.3,
-      ), 
+        maxWidth: MediaQuery.of(context).size.width * 0.3,
+      ),
       child: Row(
         children: [
           Flexible(
@@ -211,7 +227,6 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
               onChanged: (newValue) {
                 setState(() {
                   selectedLot = newValue;
-                  _updateMember();
                 });
               },
             ),
@@ -234,7 +249,6 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
               onChanged: (newValue) {
                 setState(() {
                   selectedZone = newValue;
-                  _updateMember();
                 });
               },
             ),
@@ -250,7 +264,7 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
         Flexible(
           child: TextFormField(
             controller: _lastNameController,
-            onChanged: (value) => _updateMember(),
+            // onChanged: (value) => _updateMember(),
             decoration: const InputDecoration(
                 labelText: 'Last Name', border: OutlineInputBorder()),
           ),
@@ -259,17 +273,16 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
         Flexible(
           child: TextFormField(
             controller: _firstNameController,
-            onChanged: (value) => _updateMember(),
+            // onChanged: (value) => _updateMember(),
             decoration: const InputDecoration(
-                labelText: 'Given/First Name',
-                border: OutlineInputBorder()),
+                labelText: 'Given/First Name', border: OutlineInputBorder()),
           ),
         ),
         const SizedBox(width: 8),
         Flexible(
           child: TextFormField(
             controller: _middleNameController,
-            onChanged: (value) => _updateMember(),
+            // onChanged: (value) => _updateMember(),
             decoration: const InputDecoration(
                 labelText: 'Middle Name', border: OutlineInputBorder()),
           ),
@@ -284,7 +297,7 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
         Flexible(
           child: TextFormField(
             controller: _ageController,
-            onChanged: (value) => _updateMember(),
+            // onChanged: (value) => _updateMember(),
             decoration: const InputDecoration(
                 labelText: 'Age', border: OutlineInputBorder()),
           ),
@@ -303,7 +316,7 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
                 setState(() {
                   _dateController.text =
                       DateFormat('yyyy-MM-dd').format(picked);
-                  _updateMember();
+                  // _updateMember();
                 });
               }
             },
@@ -322,7 +335,7 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
         Flexible(
           child: TextFormField(
             controller: _genderController,
-            onChanged: (value) => _updateMember(),
+            // onChanged: (value) => _updateMember(),
             decoration: const InputDecoration(
                 labelText: 'Gender', border: OutlineInputBorder()),
           ),
@@ -343,7 +356,7 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
             onChanged: (newValue) {
               setState(() {
                 selectedReligion = newValue;
-                _updateMember();
+                // _updateMember();
               });
             },
           ),
@@ -358,7 +371,7 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
         Flexible(
           child: TextFormField(
             controller: _specialGroupController,
-            onChanged: (value) => _updateMember(),
+            // onChanged: (value) => _updateMember(),
             decoration: const InputDecoration(
                 labelText: 'Special Group Belong',
                 border: OutlineInputBorder()),
@@ -368,7 +381,7 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
         Flexible(
           child: TextFormField(
             controller: _numberController,
-            onChanged: (value) => _updateMember(),
+            // onChanged: (value) => _updateMember(),
             decoration: const InputDecoration(
                 labelText: 'Number', border: OutlineInputBorder()),
           ),
@@ -388,7 +401,7 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
             onChanged: (newValue) {
               setState(() {
                 selectedCivilStatus = newValue;
-                _updateMember();
+                // _updateMember();
               });
             },
           ),
@@ -403,7 +416,7 @@ class _HouseholdMemberFormState extends State<HouseholdMemberForm> {
         Flexible(
           child: TextFormField(
             controller: _occupationController,
-            onChanged: (value) => _updateMember(),
+            // onChanged: (value) => _updateMember(),
             decoration: const InputDecoration(
                 labelText: 'Occupation', border: OutlineInputBorder()),
           ),
