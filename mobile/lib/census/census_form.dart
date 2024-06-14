@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/census/census_data.dart';
+import 'package:mobile/model/household_member.dart';
+import 'package:mobile/services/form_service.dart';
+import 'package:mobile/widgets/amenities_characteristics_form_widget.dart';
 import 'package:mobile/widgets/head_form_widget.dart';
 import 'package:mobile/widgets/census_header_widget.dart';
 import 'package:mobile/widgets/member_form_widget.dart';
@@ -8,49 +11,37 @@ class CensusForm extends StatefulWidget {
   const CensusForm({super.key});
 
   @override
-  _CensusFormState createState() => _CensusFormState();
+  State<CensusForm> createState() => _CensusFormState();
 }
 
 class _CensusFormState extends State<CensusForm> {
-  // List<Widget> householdMembers = [];
-  List<int> householdMemberIndices = [];
+  List<HouseholdMember> householdMembers = [];
 
   @override
   void initState() {
     super.initState();
-    // Initialize with one household member form
     addHouseholdMember();
   }
 
-  // void addHouseholdMember() {
-  //   setState(() {
-  //     householdMembers.add(
-  //       HouseholdMemberForm(
-  //         key: UniqueKey(),
-  //         index: householdMembers.length + 1,
-  //         onRemove: () => removeHouseholdMember(householdMembers.length + 1),
-  //       ),
-  //     );
-  //   });
-  // }
-
   void addHouseholdMember() {
     setState(() {
-      householdMemberIndices.add(householdMemberIndices.length + 1);
+      householdMembers.add(HouseholdMember());
     });
   }
 
   void removeHouseholdMember(int index) {
     setState(() {
-      householdMemberIndices.remove(index);
-      // Re-index household members after removal
-      householdMemberIndices = householdMemberIndices
-          .asMap()
-          .map((index, value) => MapEntry(index, index + 1))
-          .values
-          .toList();
+      householdMembers.removeAt(index);
     });
   }
+
+  void updateHouseholdMember(int index, HouseholdMember member) {
+    setState(() {
+      householdMembers[index] = member;
+    });
+  }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +59,6 @@ class _CensusFormState extends State<CensusForm> {
         elevation: 0,
         toolbarHeight: 40,
         backgroundColor: Colors.transparent,
-        // surfaceTintColor: Colors.transparent, // SurfaceTintColor removed
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -94,13 +84,11 @@ class _CensusFormState extends State<CensusForm> {
                 ),
               ),
             ),
-            // FORM HERE INSIDE A BOX WITH WHITE background
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(40.0),
+                padding: const EdgeInsets.all(30.0),
                 child: ListView(
                   children: [
-                    // HOUSEHOLD HEAD FORM
                     const Text(
                       'Household Head',
                       style:
@@ -108,21 +96,43 @@ class _CensusFormState extends State<CensusForm> {
                     ),
                     const SizedBox(height: 20),
                     const HouseholdHeadForm(),
-
-                    // HOUSEHOLD MEMBER FORM
                     Column(
-                      children: householdMemberIndices.map((index) {
+                      children: householdMembers.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        HouseholdMember member = entry.value;
                         return HouseholdMemberForm(
                           key: UniqueKey(),
-                          index: index,
+                          index: index + 1,
+                          member: member,
                           onRemove: () => removeHouseholdMember(index),
+                          onUpdate: (updatedMember) =>
+                              updateHouseholdMember(index, updatedMember),
                         );
                       }).toList(),
                     ),
                     const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: addHouseholdMember,
-                      child: const Text('Add Household Member'),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: addHouseholdMember,
+                            icon: const Icon(Icons.add, color: Colors.white),
+                            label: const Text('Add Household Member'),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.blue,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 20.0),
+                              textStyle: const TextStyle(fontSize: 16.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 20),
                     const Text(
@@ -130,24 +140,65 @@ class _CensusFormState extends State<CensusForm> {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    // const HouseholdAmenitiesForm(),
                     const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            // Save action
-                          },
-                          child: const Text('Save'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Cancel action
-                          },
-                          child: const Text('Cancel'),
-                        ),
-                      ],
+                    const HouseholdAmenitiesForm(),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              // ApiService().saveDataToDatabase({
+                              //   'household': {
+                              //     'name':
+                              //         householdHeadName, // Replace with actual data from your form
+                              //     'address': householdHeadAddress,
+                              //     // Include other household data here...
+                              //   },
+                              //   'members': householdMembers
+                              //       .map((member) => member.toJson())
+                              //       .toList(),
+                              // });
+                            },
+                            icon: const Icon(Icons.save, color: Colors.white),
+                            label: const Text('Save'),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.blue,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 20.0),
+                              textStyle: const TextStyle(fontSize: 16.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const CensusData()),
+                              );
+                            },
+                            icon: const Icon(Icons.cancel_outlined,
+                                color: Colors.white),
+                            label: const Text('Cancel'),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.blue,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 20.0),
+                              textStyle: const TextStyle(fontSize: 16.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
