@@ -2,22 +2,27 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  
-  static const String apiUrl = 'http://127.0.0.1:90/BDRRM/households.php';
-
-  Future<void> submitForm(Map<String, String> formData) async {
+  Future<void> saveDataToDatabase(Map<String, dynamic> data) async {
+    const url =
+        'http://127.0.0.1:90/BDRRM/create_household.php'; // Replace with your actual PHP file URL
     final response = await http.post(
-      Uri.parse(apiUrl),
+      Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(formData),
+      body: jsonEncode(data),
     );
 
     if (response.statusCode == 200) {
-      // Handle successful submission
-      print('Form submitted successfully');
+      final responseData = jsonDecode(response.body);
+      if (responseData['success']) {
+        // Data saved successfully
+        print(responseData['message']);
+      } else {
+        // Error saving data
+        print(responseData['message']);
+      }
     } else {
-      // Handle error
-      print('Form submission failed: ${response.body}');
+      // HTTP request failed
+      print('Failed to save data. Error code: ${response.statusCode}');
     }
   }
 }
