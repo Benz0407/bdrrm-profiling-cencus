@@ -3,23 +3,25 @@ import 'package:mobile/census/census_data.dart';
 import 'package:mobile/model/household_model.dart';
 import 'package:mobile/model/household_member_model.dart';
 import 'package:mobile/model/household_head_model.dart';
+import 'package:mobile/model/household_table_model.dart';
 import 'package:mobile/services/form_service.dart';
 import 'package:mobile/widgets/amenities_characteristics_form_widget.dart';
 import 'package:mobile/widgets/head_form_widget.dart';
 import 'package:mobile/widgets/census_header_widget.dart';
 import 'package:mobile/widgets/member_form_widget.dart';
 
-class CensusForm extends StatefulWidget {
-  
-  const CensusForm({super.key});
+class CensusEditForm extends StatefulWidget {
+  final HouseholdTableModel household;
+
+  const CensusEditForm({super.key, required this.household});
 
   @override
-  State<CensusForm> createState() => _CensusFormState();
+  CensusEditFormState createState() => CensusEditFormState();
 }
 
-class _CensusFormState extends State<CensusForm> {
-  HouseholdHead householdHead = HouseholdHead();
-  Household householdHeadAmenities = Household();
+class CensusEditFormState extends State<CensusEditForm> {
+  late HouseholdHead householdHead= HouseholdHead();
+  late Household householdHeadAmenities = Household();
   List<HouseholdMember> householdMembers = [];
   List<GlobalKey<HouseholdMemberFormState>> householdMemberFormKeys = [];
 
@@ -31,10 +33,10 @@ class _CensusFormState extends State<CensusForm> {
   @override
   void initState() {
     super.initState();
-    addHouseholdMember();
+    initializeForm();
   }
 
-  void addHouseholdMember() {
+ void addHouseholdMember() {
     setState(() {
       householdMembers.add(HouseholdMember());
       householdMemberFormKeys.add(GlobalKey<HouseholdMemberFormState>());
@@ -48,13 +50,64 @@ class _CensusFormState extends State<CensusForm> {
       }
     });
   }
+  void initializeForm() {
+  // Initialize household head and amenities with data from widget.household
+  Member headMember = widget.household.members.firstWhere(
+    (member) => member.hhMemberType == 'Head'
+  );
 
-  void removeHouseholdMember(int index) {
-    setState(() {
-      householdMembers.removeAt(index);
-      householdMemberFormKeys.removeAt(index);
-    });
-  }
+  householdHead = headMember != null
+      ? HouseholdHead(
+          name: headMember.name,
+          age: headMember.age,
+          gender: headMember.gender,
+          occupation: headMember.occupation,
+          number: headMember.number,
+          civilStatus: headMember.civilStatus,
+          dateOfBirth: headMember.dateOfBirth,
+          religion: headMember.religion,
+          specialGroup: headMember.specialGroup,
+          hhMemberType: headMember.hhMemberType,
+        )
+      : HouseholdHead(); // Default empty constructor
+
+  householdHeadAmenities = Household(
+    waterSource: widget.household.waterSource,
+    garbageDisposal: widget.household.garbageDisposal,
+    houseStatus: widget.household.houseStatus,
+    housingMaterial: widget.household.housingMaterial,
+    toiletFacility: widget.household.toiletFacility,
+    communication: widget.household.communication,
+    hhWith: widget.household.hhWith,
+    hhWithElectricity: widget.household.hhWithElectricity,
+    income: widget.household.income,
+  );
+
+  // Initialize household members with data from widget.household.members
+  householdMembers = widget.household.members
+      .where((member) => member.hhMemberType == 'Member')
+      .map((member) => HouseholdMember(
+            name: member.name,
+            age: member.age,
+            gender: member.gender,
+            occupation: member.occupation,
+            number: member.number,
+            civilStatus: member.civilStatus,
+            dateOfBirth: member.dateOfBirth,
+            religion: member.religion,
+            specialGroup: member.specialGroup,
+            hhMemberType: member.hhMemberType,
+          ))
+      .toList();
+
+  // Initialize form keys for household members
+  householdMemberFormKeys = List.generate(
+    householdMembers.length,
+    (index) => GlobalKey<HouseholdMemberFormState>(),
+  );
+}
+
+
 
   void updateHouseholdMember(int index, HouseholdMember member) {
     setState(() {
@@ -79,8 +132,7 @@ class _CensusFormState extends State<CensusForm> {
     for (var key in householdMemberFormKeys) {
       key.currentState?.updateMember();
     }
-
-    Household amenitiesData = Household(
+     Household amenitiesData = Household(
       waterSource: householdHeadAmenities.waterSource,
       garbageDisposal: householdHeadAmenities.garbageDisposal,
       houseStatus: householdHeadAmenities.houseStatus,
@@ -93,12 +145,12 @@ class _CensusFormState extends State<CensusForm> {
     );
 
     // Save household data and get the generated id
-    int householdId = await FormService.saveAndGetHousehold(amenitiesData);
+    int householdId =
+        await FormService.saveAndGetHousehold(amenitiesData);
 
     // Instantiate Household object with form data
     HouseholdHead headData = HouseholdHead(
       name: householdHead.name,
-      address: '${householdHead.lot}, ${householdHead.zone}',
       age: householdHead.age,
       gender: householdHead.gender,
       occupation: householdHead.occupation,
@@ -116,12 +168,8 @@ class _CensusFormState extends State<CensusForm> {
 
     // Convert each HouseholdMember form data to HouseholdMember object
     for (var i = 0; i < householdMembers.length; i++) {
-      String address =
-          '${householdMembers[i].lot}, ${householdMembers[i].zone}';
-
       HouseholdMember memberData = HouseholdMember(
         name: householdMembers[i].name,
-        address: address,
         age: householdMembers[i].age,
         gender: householdMembers[i].gender,
         occupation: householdMembers[i].occupation,
@@ -169,10 +217,7 @@ class _CensusFormState extends State<CensusForm> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const CensusData()),
-            );
+            Navigator.pop(context);
           },
         ),
         elevation: 0,
@@ -192,7 +237,7 @@ class _CensusFormState extends State<CensusForm> {
         ),
         child: Column(
           children: [
-            const CensusHeaderWidget(headerText: "Census Form"),
+            const CensusHeaderWidget(headerText: "Edit Census Form"),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 40.0),
               child: Text(
@@ -228,13 +273,13 @@ class _CensusFormState extends State<CensusForm> {
                           key: householdMemberFormKeys[index],
                           index: index + 1,
                           member: member,
-                          onRemove: () => removeHouseholdMember(index),
+                          onRemove: () {},
                           onUpdate: (updatedMember) =>
                               updateHouseholdMember(index, updatedMember),
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: 20),
+                     const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Row(

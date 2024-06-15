@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/model/household_amenities.dart';
+import 'package:mobile/model/household_model.dart';
 import 'package:mobile/util/responsive.dart';
+import 'dart:async';
 
 class HouseholdAmenitiesForm extends StatefulWidget {
-  final HouseholdAmenities amenities;
+  final Household amenities;
   final VoidCallback onRemove;
-  final ValueChanged<HouseholdAmenities> onUpdate;
+  final ValueChanged<Household> onUpdate;
   const HouseholdAmenitiesForm(
       {super.key,
       required this.amenities,
@@ -27,7 +28,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
   String? _houseStatus;
   late TextEditingController _incomeController = TextEditingController();
   late GlobalKey<FormState> _formKey;
-
+  Timer? _debounce;
   final List<String> _sourceOfWaterOptions = [
     'Community Water System (Owned)',
     'Community Water System (Shared)',
@@ -92,7 +93,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
 
   void updateAmenities() {
     widget.onUpdate(
-      HouseholdAmenities(
+      Household(
         waterSource: _sourceOfWater,
         garbageDisposal: _garbageDisposal,
         toiletFacility: _toiletFacility,
@@ -104,6 +105,13 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
         income: _incomeController.text,
       ),
     );
+  }
+
+  void _onFieldChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      updateAmenities();
+    });
   }
 
   @override
@@ -140,6 +148,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
           (newValue) {
             setState(() {
               _sourceOfWater = newValue;
+              updateAmenities();
             });
           },
         ),
@@ -151,6 +160,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
           (newValue) {
             setState(() {
               _toiletFacility = newValue;
+              updateAmenities();
             });
           },
         ),
@@ -162,6 +172,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
           (newValue) {
             setState(() {
               _garbageDisposal = newValue;
+              updateAmenities();
             });
           },
         ),
@@ -173,6 +184,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
           (newValue) {
             setState(() {
               _constructionMaterials = newValue;
+              updateAmenities();
             });
           },
         ),
@@ -184,6 +196,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
           (newValue) {
             setState(() {
               _meansOfCommunication = newValue;
+              updateAmenities();
             });
           },
         ),
@@ -195,6 +208,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
           (newValue) {
             setState(() {
               _houseStatus = newValue;
+              updateAmenities();
             });
           },
         ),
@@ -206,6 +220,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
           (newValue) {
             setState(() {
               _hhWith = newValue;
+              updateAmenities();
             });
           },
         ),
@@ -217,6 +232,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
           (newValue) {
             setState(() {
               _hhWithElectricity = newValue;
+              updateAmenities();
             });
           },
         ),
@@ -225,7 +241,12 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
           child: TextFormField(
             controller: _incomeController,
             decoration: const InputDecoration(
-                labelText: 'Income', border: OutlineInputBorder()),
+              labelText: 'Income',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              _onFieldChanged();
+            },
           ),
         ),
       ],
@@ -245,6 +266,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _sourceOfWater = newValue;
+                    updateAmenities();
                   });
                 },
               ),
@@ -258,6 +280,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _toiletFacility = newValue;
+                    updateAmenities();
                   });
                 },
               ),
@@ -275,6 +298,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _garbageDisposal = newValue;
+                    updateAmenities();
                   });
                 },
               ),
@@ -288,6 +312,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _constructionMaterials = newValue;
+                    updateAmenities();
                   });
                 },
               ),
@@ -301,6 +326,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _meansOfCommunication = newValue;
+                    updateAmenities();
                   });
                 },
               ),
@@ -318,6 +344,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _houseStatus = newValue;
+                    updateAmenities();
                   });
                 },
               ),
@@ -344,7 +371,21 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _hhWithElectricity = newValue;
+                    updateAmenities();
                   });
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
+            Flexible(
+              child: TextFormField(
+                controller: _incomeController,
+                decoration: const InputDecoration(
+                  labelText: 'Income',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  _onFieldChanged();
                 },
               ),
             ),
@@ -369,6 +410,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _sourceOfWater = newValue;
+                    updateAmenities();
                   });
                 },
               ),
@@ -380,6 +422,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _toiletFacility = newValue;
+                    updateAmenities();
                   });
                 },
               ),
@@ -391,6 +434,19 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _garbageDisposal = newValue;
+                    updateAmenities();
+                  });
+                },
+              ),
+              const SizedBox(height: 10),
+              buildDropdown(
+                'Construction Materials',
+                _constructionMaterials,
+                _constructionMaterialsOptions,
+                (newValue) {
+                  setState(() {
+                    _constructionMaterials = newValue;
+                    updateAmenities();
                   });
                 },
               ),
@@ -403,23 +459,13 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildDropdown(
-                'Construction Materials',
-                _constructionMaterials,
-                _constructionMaterialsOptions,
-                (newValue) {
-                  setState(() {
-                    _constructionMaterials = newValue;
-                  });
-                },
-              ),
-              const SizedBox(height: 10),
-              buildDropdown(
                 'Means of Communication',
                 _meansOfCommunication,
                 _meansOfCommunicationOptions,
                 (newValue) {
                   setState(() {
                     _meansOfCommunication = newValue;
+                    updateAmenities();
                   });
                 },
               ),
@@ -431,6 +477,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _houseStatus = newValue;
+                    updateAmenities();
                   });
                 },
               ),
@@ -442,6 +489,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _hhWith = newValue;
+                    updateAmenities();
                   });
                 },
               ),
@@ -453,12 +501,30 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
                 (newValue) {
                   setState(() {
                     _hhWithElectricity = newValue;
+                    updateAmenities();
                   });
                 },
               ),
             ],
           ),
         ),
+        Expanded(
+          child:Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+                const SizedBox(height: 10),
+              TextFormField(
+                controller: _incomeController,
+                decoration: const InputDecoration(
+                  labelText: 'Income',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  _onFieldChanged();
+                },
+              ),
+            ],)
+        )
       ],
     );
   }

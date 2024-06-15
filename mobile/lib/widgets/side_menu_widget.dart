@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile/census/census_data.dart';
 import 'package:mobile/const/constant.dart';
 import 'package:mobile/data/side_menu_data.dart';
-import 'package:mobile/census/census_main.dart';
 
 class SideMenuWidget extends StatefulWidget {
   const SideMenuWidget({super.key});

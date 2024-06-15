@@ -1,63 +1,56 @@
 class Household {
-  int? id;
-  final String? name;
-  String? lot;
-  String? zone;
-  final String? age;
-  final String? gender;
-  final String? occupation;
-  final String? number;
-  final String? civilStatus;
-  final String? dateOfBirth;
-  final String? religion;
-  final String? specialGroup;
+  int? id; 
+  final String? waterSource;
+  final String? garbageDisposal;
+  final String? houseStatus;
+  final String? housingMaterial;
+  final String? toiletFacility;
+  final String? communication;
+  final String? hhWith;
+  final String? hhWithElectricity;
+  final String? income;
 
   Household({
-    this.id,
-    this.name,
-    this.lot,
-    this.zone,
-    this.age,
-    this.gender,
-    this.occupation,
-    this.number,
-    this.civilStatus,
-    this.dateOfBirth,
-    this.religion,
-    this.specialGroup,
+    this.id, 
+    this.waterSource,
+     this.garbageDisposal,
+     this.houseStatus,
+     this.housingMaterial,
+     this.toiletFacility,
+     this.communication,
+     this.hhWith,
+     this.hhWithElectricity,
+     this.income,
   });
 
   factory Household.fromJson(Map<String, dynamic> json) {
     return Household(
-      id: json['id'],
-      name: json['name'],
-      lot: json['lot'],
-      zone: json['zone'],
-      age: json['age'],
-      gender: json['gender'],
-      occupation: json['occupation'],
-      number: json['number'],
-      civilStatus: json['civilStatus'],
-      dateOfBirth: json['dateOfBirth'],
-      religion: json['religion'],
-      specialGroup: json['specialGroup'],
+      id:  int.parse(json['id']),
+      waterSource: json['waterSource'],
+      garbageDisposal: json['garbageDisposal'],
+      houseStatus: json['houseStatus'],
+      housingMaterial: json['housingMaterial'],
+      toiletFacility: json['toiletFacility'],
+      communication: json['communication'],
+      hhWith: json['hhWith'],
+      hhWithElectricity: json['hhWithElectricity'],
+      income: json['income'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'name': name,
-      'lot': lot,
-      'zone': zone,
-      'age': age,
-      'gender': gender,
-      'occupation': occupation,
-      'number': number,
-      'civilStatus': civilStatus,
-      'dateOfBirth': dateOfBirth,
-      'religion': religion,
-      'specialGroup': specialGroup,
+      'id' : id, 
+      'waterSource': waterSource,
+      'garbageDisposal': garbageDisposal,
+      'houseStatus': houseStatus,
+      'housingMaterial': housingMaterial,
+      'toiletFacility': toiletFacility,
+      'communication': communication,
+      'hhWith': hhWith,
+      'hhWithElectricity': hhWithElectricity,
+      'income': income,
     };
   }
+
 }

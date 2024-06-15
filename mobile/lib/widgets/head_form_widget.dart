@@ -1,36 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/model/household_model.dart';
+import 'package:mobile/model/household_head_model.dart';
 import 'package:mobile/util/responsive.dart';
+import 'dart:async';
 
 class HouseholdHeadForm extends StatefulWidget {
-  final Household head;
+  final HouseholdHead head;
   final VoidCallback onRemove;
-  final ValueChanged<Household> onUpdate;
-  const HouseholdHeadForm(
-      {super.key,
-      required this.onUpdate,
-      required this.onRemove,
-      required this.head});
+  final ValueChanged<HouseholdHead> onUpdate;
+
+  const HouseholdHeadForm({
+    super.key,
+    required this.onUpdate,
+    required this.onRemove,
+    required this.head,
+  });
 
   @override
   State<HouseholdHeadForm> createState() => HouseholdHeadFormState();
 }
 
 class HouseholdHeadFormState extends State<HouseholdHeadForm> {
-  late TextEditingController _dateController = TextEditingController();
-  late TextEditingController _nameController = TextEditingController();
-  late TextEditingController _ageController = TextEditingController();
-  late TextEditingController _genderController = TextEditingController();
-  late TextEditingController _specialGroupController = TextEditingController();
-  late TextEditingController _numberController = TextEditingController();
-  late TextEditingController _occupationController = TextEditingController();
+  late TextEditingController _dateController;
+  late TextEditingController _nameController;
+  late TextEditingController _ageController;
+  late TextEditingController _numberController;
+  late TextEditingController _occupationController;
   late GlobalKey<FormState> _formKey;
 
   String? selectedLot;
   String? selectedZone;
   String? selectedReligion;
   String? selectedCivilStatus;
+  String? selectedSpecialGroup; 
+  String? selectedGender; 
+
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -39,33 +44,39 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
     _nameController = TextEditingController(text: widget.head.name);
     _ageController = TextEditingController(text: widget.head.age);
     _dateController = TextEditingController(text: widget.head.dateOfBirth);
-    _genderController = TextEditingController(text: widget.head.gender);
-    _specialGroupController =
-        TextEditingController(text: widget.head.specialGroup);
     _numberController = TextEditingController(text: widget.head.number);
     _occupationController = TextEditingController(text: widget.head.occupation);
     selectedLot = widget.head.lot;
     selectedZone = widget.head.zone;
     selectedReligion = widget.head.religion;
     selectedCivilStatus = widget.head.civilStatus;
+    selectedSpecialGroup = widget.head.specialGroup;
+    selectedGender = widget.head.gender;
   }
 
   void updateHead() {
     widget.onUpdate(
-      Household(
+      HouseholdHead(
         name: _nameController.text,
-        age: _ageController.text,
-        dateOfBirth: _dateController.text,
-        gender: _genderController.text,
-        religion: selectedReligion,
-        specialGroup: _specialGroupController.text,
-        number: _numberController.text,
-        civilStatus: selectedCivilStatus,
-        occupation: _occupationController.text,
         lot: selectedLot,
         zone: selectedZone,
+        age: _ageController.text,
+        gender: selectedGender,
+        occupation: _occupationController.text,
+        number: _numberController.text,
+        civilStatus: selectedCivilStatus,
+        dateOfBirth: _dateController.text,
+        religion: selectedReligion,
+        specialGroup: selectedSpecialGroup,
       ),
     );
+  }
+
+  void _onFieldChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      updateHead();
+    });
   }
 
   @override
@@ -73,10 +84,9 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
     _dateController.dispose();
     _nameController.dispose();
     _ageController.dispose();
-    _genderController.dispose();
-    _specialGroupController.dispose();
     _numberController.dispose();
     _occupationController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -90,6 +100,7 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
     if (picked != null) {
       setState(() {
         _dateController.text = DateFormat('yyyy-MM-dd').format(picked);
+        updateHead();
       });
     }
   }
@@ -191,6 +202,7 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
               onChanged: (newValue) {
                 setState(() {
                   selectedLot = newValue;
+                  updateHead();
                 });
               },
             ),
@@ -213,6 +225,7 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
               onChanged: (newValue) {
                 setState(() {
                   selectedZone = newValue;
+                  updateHead();
                 });
               },
             ),
@@ -230,6 +243,9 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
             controller: _nameController,
             decoration: const InputDecoration(
                 labelText: 'Full name', border: OutlineInputBorder()),
+            onChanged: (value) {
+              _onFieldChanged();
+            },
           ),
         ),
       ],
@@ -244,6 +260,9 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
             controller: _ageController,
             decoration: const InputDecoration(
                 labelText: 'Age', border: OutlineInputBorder()),
+            onChanged: (value) {
+              _onFieldChanged();
+            },
           ),
         ),
         const SizedBox(width: 8),
@@ -257,16 +276,28 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
                   labelText: 'Date of Birth',
                   border: OutlineInputBorder(),
                 ),
+                onChanged: (value) {
+                  _onFieldChanged();
+                },
               ),
             ),
           ),
         ),
         const SizedBox(width: 8),
         Flexible(
-          child: TextFormField(
-            controller: _genderController,
-            decoration: const InputDecoration(
-                labelText: 'Gender', border: OutlineInputBorder()),
+          child: buildDropdownFormField(
+            labelText: 'Gender',
+            value: selectedGender,
+            items: [
+              'Male',
+              'Female'
+            ],
+            onChanged: (newValue) {
+              setState(() {
+                selectedGender = newValue;
+                updateHead();
+              });
+            },
           ),
         ),
         const SizedBox(width: 8),
@@ -285,6 +316,7 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
             onChanged: (newValue) {
               setState(() {
                 selectedReligion = newValue;
+                updateHead();
               });
             },
           ),
@@ -297,11 +329,22 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
     return Row(
       children: [
         Flexible(
-          child: TextFormField(
-            controller: _specialGroupController,
-            decoration: const InputDecoration(
-                labelText: 'Special Group Belong',
-                border: OutlineInputBorder()),
+          child: buildDropdownFormField(
+            labelText: 'Special Group',
+            value: selectedSpecialGroup,
+            items: [
+              'Senior Citizen',
+              'Pregnant',
+              'Minor',
+              'PWD',
+              'None'
+            ],
+            onChanged: (newValue) {
+              setState(() {
+                selectedSpecialGroup = newValue;
+                updateHead();
+              });
+            },
           ),
         ),
         const SizedBox(width: 8),
@@ -310,6 +353,9 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
             controller: _numberController,
             decoration: const InputDecoration(
                 labelText: 'Number', border: OutlineInputBorder()),
+            onChanged: (value) {
+              _onFieldChanged();
+            },
           ),
         ),
         const SizedBox(width: 8),
@@ -319,14 +365,14 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
             value: selectedCivilStatus,
             items: [
               'Single',
-              'Legally Married',
+              'Married',
               'Widowed',
-              'Divorced/Separated',
-              'Common Law/ Live in'
+              'Divorced',
             ],
             onChanged: (newValue) {
               setState(() {
                 selectedCivilStatus = newValue;
+                updateHead();
               });
             },
           ),
@@ -336,41 +382,35 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
   }
 
   Widget buildOccupation() {
-    return Row(
-      children: [
-        Flexible(
-          child: TextFormField(
-            controller: _occupationController,
-            decoration: const InputDecoration(
-                labelText: 'Occupation', border: OutlineInputBorder()),
-          ),
-        ),
-      ],
+    return TextFormField(
+      controller: _occupationController,
+      decoration: const InputDecoration(
+          labelText: 'Occupation', border: OutlineInputBorder()),
+      onChanged: (value) {
+        _onFieldChanged();
+      },
     );
   }
 
   Widget buildDropdownFormField({
     required String labelText,
-    String? value,
+    required String? value,
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 0.0),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        decoration: InputDecoration(
-          labelText: labelText,
-          border: const OutlineInputBorder(),
-        ),
-        items: items.map((String item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item),
-          );
-        }).toList(),
-        onChanged: onChanged,
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border: const OutlineInputBorder(),
       ),
+      items: items.map((item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: onChanged,
     );
   }
 }

@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/model/household_member.dart';
+import 'package:mobile/model/household_member_model.dart';
 import 'package:mobile/util/responsive.dart';
 
 class HouseholdMemberForm extends StatefulWidget {
@@ -19,61 +20,48 @@ class HouseholdMemberForm extends StatefulWidget {
 
   @override
   State<HouseholdMemberForm> createState() => HouseholdMemberFormState();
-
- 
 }
 
 class HouseholdMemberFormState extends State<HouseholdMemberForm> {
-  
-  late TextEditingController _lastNameController;
-  late TextEditingController _firstNameController;
-  late TextEditingController _middleNameController;
+  late TextEditingController _nameController;
   late TextEditingController _ageController;
   late TextEditingController _dateController;
-  late TextEditingController _genderController;
-  late TextEditingController _specialGroupController;
   late TextEditingController _numberController;
   late TextEditingController _occupationController;
 
-   late GlobalKey<FormState> _formKey;
+  late GlobalKey<FormState> _formKey;
+  Timer? _debounce;
 
   String? selectedLot;
   String? selectedZone;
   String? selectedReligion;
   String? selectedCivilStatus;
+  String? selectedSpecialGroup;
+  String? selectedGender;
 
   @override
   void initState() {
     super.initState();
     _formKey = GlobalKey<FormState>();
-    _lastNameController = TextEditingController(text: widget.member.lastName);
-    _firstNameController = TextEditingController(text: widget.member.firstName);
-    _middleNameController =
-        TextEditingController(text: widget.member.middleName);
+    _nameController = TextEditingController(text: widget.member.name);
     _ageController = TextEditingController(text: widget.member.age);
     _dateController = TextEditingController(text: widget.member.dateOfBirth);
-    _genderController = TextEditingController(text: widget.member.gender);
-    _specialGroupController =
-        TextEditingController(text: widget.member.specialGroup);
     _numberController = TextEditingController(text: widget.member.number);
     _occupationController =
         TextEditingController(text: widget.member.occupation);
-
     selectedLot = widget.member.lot;
     selectedZone = widget.member.zone;
     selectedReligion = widget.member.religion;
     selectedCivilStatus = widget.member.civilStatus;
+    selectedGender = widget.member.gender;
+    selectedSpecialGroup = widget.member.specialGroup;
   }
 
   @override
   void dispose() {
-    _lastNameController.dispose();
-    _firstNameController.dispose();
-    _middleNameController.dispose();
+    _nameController.dispose();
     _ageController.dispose();
     _dateController.dispose();
-    _genderController.dispose();
-    _specialGroupController.dispose();
     _numberController.dispose();
     _occupationController.dispose();
     super.dispose();
@@ -82,44 +70,49 @@ class HouseholdMemberFormState extends State<HouseholdMemberForm> {
   void updateMember() {
     widget.onUpdate(
       HouseholdMember(
-        lastName: _lastNameController.text,
-        firstName: _firstNameController.text,
-        middleName: _middleNameController.text,
-        age: _ageController.text,
-        dateOfBirth: _dateController.text,
-        gender: _genderController.text,
-        religion: selectedReligion,
-        specialGroup: _specialGroupController.text,
-        number: _numberController.text,
-        civilStatus: selectedCivilStatus,
-        occupation: _occupationController.text,
+        name: _nameController.text,
         lot: selectedLot,
         zone: selectedZone,
+        age: _ageController.text,
+        gender: selectedGender,
+        occupation: _occupationController.text,
+        number: _numberController.text,
+        civilStatus: selectedCivilStatus,
+        dateOfBirth: _dateController.text,
+        religion: selectedReligion,
+        specialGroup: selectedSpecialGroup,
       ),
     );
   }
 
-  @override
-Widget build(BuildContext context) {
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      return Form(
-        key: _formKey,
-        child: _buildLayoutForScreenSize(context),
-      );
-    },
-  );
-}
-
-Widget _buildLayoutForScreenSize(BuildContext context) {
-  if (Responsive.isDesktop(context)) {
-    return buildDesktopLayout();
-  } else if (Responsive.isTablet(context)) {
-    return buildTabletLayout();
-  } else {
-    return buildMobileLayout();
+  void _onFieldChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      updateMember();
+    });
   }
-}
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Form(
+          key: _formKey,
+          child: _buildLayoutForScreenSize(context),
+        );
+      },
+    );
+  }
+
+  Widget _buildLayoutForScreenSize(BuildContext context) {
+    if (Responsive.isDesktop(context)) {
+      return buildDesktopLayout();
+    } else if (Responsive.isTablet(context)) {
+      return buildTabletLayout();
+    } else {
+      return buildMobileLayout();
+    }
+  }
 
   Widget buildMobileLayout() {
     return Column(
@@ -227,6 +220,7 @@ Widget _buildLayoutForScreenSize(BuildContext context) {
               onChanged: (newValue) {
                 setState(() {
                   selectedLot = newValue;
+                  updateMember();
                 });
               },
             ),
@@ -249,6 +243,7 @@ Widget _buildLayoutForScreenSize(BuildContext context) {
               onChanged: (newValue) {
                 setState(() {
                   selectedZone = newValue;
+                  updateMember();
                 });
               },
             ),
@@ -263,28 +258,12 @@ Widget _buildLayoutForScreenSize(BuildContext context) {
       children: [
         Flexible(
           child: TextFormField(
-            controller: _lastNameController,
-            // onChanged: (value) => _updateMember(),
+            controller: _nameController,
             decoration: const InputDecoration(
                 labelText: 'Last Name', border: OutlineInputBorder()),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Flexible(
-          child: TextFormField(
-            controller: _firstNameController,
-            // onChanged: (value) => _updateMember(),
-            decoration: const InputDecoration(
-                labelText: 'Given/First Name', border: OutlineInputBorder()),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Flexible(
-          child: TextFormField(
-            controller: _middleNameController,
-            // onChanged: (value) => _updateMember(),
-            decoration: const InputDecoration(
-                labelText: 'Middle Name', border: OutlineInputBorder()),
+            onChanged: (value) {
+              _onFieldChanged();
+            },
           ),
         ),
       ],
@@ -297,9 +276,11 @@ Widget _buildLayoutForScreenSize(BuildContext context) {
         Flexible(
           child: TextFormField(
             controller: _ageController,
-            // onChanged: (value) => _updateMember(),
             decoration: const InputDecoration(
                 labelText: 'Age', border: OutlineInputBorder()),
+            onChanged: (value) {
+              _onFieldChanged();
+            },
           ),
         ),
         const SizedBox(width: 8),
@@ -316,7 +297,7 @@ Widget _buildLayoutForScreenSize(BuildContext context) {
                 setState(() {
                   _dateController.text =
                       DateFormat('yyyy-MM-dd').format(picked);
-                  // _updateMember();
+                  updateMember();
                 });
               }
             },
@@ -333,18 +314,34 @@ Widget _buildLayoutForScreenSize(BuildContext context) {
         ),
         const SizedBox(width: 8),
         Flexible(
-          child: TextFormField(
-            controller: _genderController,
-            // onChanged: (value) => _updateMember(),
+          child: DropdownButtonFormField<String>(
+            value: selectedGender,
             decoration: const InputDecoration(
-                labelText: 'Gender', border: OutlineInputBorder()),
+              labelText: 'Gender',
+              border: OutlineInputBorder(),
+            ),
+            items: ['Male', 'Female']
+                .map((status) => DropdownMenuItem(
+                      value: status,
+                      child: Text(status),
+                    ))
+                .toList(),
+            onChanged: (newValue) {
+              setState(() {
+                selectedGender = newValue;
+                updateMember();
+              });
+            },
           ),
         ),
         const SizedBox(width: 8),
         Flexible(
-          child: buildDropdownFormField(
-            labelText: 'Religion',
+          child: DropdownButtonFormField<String>(
             value: selectedReligion,
+            decoration: const InputDecoration(
+              labelText: 'Religion',
+              border: OutlineInputBorder(),
+            ),
             items: [
               'Catholic',
               'Protestant',
@@ -352,11 +349,15 @@ Widget _buildLayoutForScreenSize(BuildContext context) {
               'Aglipay',
               'Islam',
               'Others (Specify)'
-            ],
+            ].map((status) => DropdownMenuItem(
+                      value: status,
+                      child: Text(status),
+                    ))
+                .toList(),
             onChanged: (newValue) {
               setState(() {
                 selectedReligion = newValue;
-                // _updateMember();
+                updateMember();
               });
             },
           ),
@@ -369,39 +370,55 @@ Widget _buildLayoutForScreenSize(BuildContext context) {
     return Row(
       children: [
         Flexible(
-          child: TextFormField(
-            controller: _specialGroupController,
-            // onChanged: (value) => _updateMember(),
+          child: DropdownButtonFormField<String>(
+            value: selectedSpecialGroup,
             decoration: const InputDecoration(
-                labelText: 'Special Group Belong',
-                border: OutlineInputBorder()),
+              labelText: 'Special Group',
+              border: OutlineInputBorder(),
+            ),
+            items: ['Senior Citizen', 'Pregnant', 'Minor', 'PWD', 'None']
+                .map((status) => DropdownMenuItem(
+                      value: status,
+                      child: Text(status),
+                    ))
+                .toList(),
+            onChanged: (newValue) {
+              setState(() {
+                selectedSpecialGroup = newValue;
+                updateMember();
+              });
+            },
           ),
         ),
         const SizedBox(width: 8),
         Flexible(
           child: TextFormField(
             controller: _numberController,
-            // onChanged: (value) => _updateMember(),
             decoration: const InputDecoration(
                 labelText: 'Number', border: OutlineInputBorder()),
+            onChanged: (value) {
+              _onFieldChanged();
+            },
           ),
         ),
         const SizedBox(width: 8),
         Flexible(
-          child: buildDropdownFormField(
-            labelText: 'Civil Status',
+          child: DropdownButtonFormField<String>(
             value: selectedCivilStatus,
-            items: [
-              'Single',
-              'Legally Married',
-              'Widowed',
-              'Divorced/Separated',
-              'Common Law/ Live in'
-            ],
+            decoration: const InputDecoration(
+              labelText: 'Civil Status',
+              border: OutlineInputBorder(),
+            ),
+            items: ['Single', 'Married', 'Divorced', 'Widowed']
+                .map((status) => DropdownMenuItem(
+                      value: status,
+                      child: Text(status),
+                    ))
+                .toList(),
             onChanged: (newValue) {
               setState(() {
                 selectedCivilStatus = newValue;
-                // _updateMember();
+                updateMember();
               });
             },
           ),
@@ -416,37 +433,14 @@ Widget _buildLayoutForScreenSize(BuildContext context) {
         Flexible(
           child: TextFormField(
             controller: _occupationController,
-            // onChanged: (value) => _updateMember(),
             decoration: const InputDecoration(
                 labelText: 'Occupation', border: OutlineInputBorder()),
+            onChanged: (value) {
+              _onFieldChanged();
+            },
           ),
         ),
       ],
-    );
-  }
-
-  Widget buildDropdownFormField({
-    required String labelText,
-    String? value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 0.0),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        decoration: InputDecoration(
-          labelText: labelText,
-          border: const OutlineInputBorder(),
-        ),
-        items: items.map((String item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item),
-          );
-        }).toList(),
-        onChanged: onChanged,
-      ),
     );
   }
 }

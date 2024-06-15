@@ -1,31 +1,80 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:mobile/model/household_member.dart';
+import 'package:mobile/model/household_head_model.dart';
 import 'package:mobile/model/household_model.dart';
+import 'package:mobile/model/household_member_model.dart';
 
-class ApiService {
-  static const baseUrl = 'http://127.0.0.1:90/BDRRM/create_household.php';
-  Future<void> addHousehold(Map<String, dynamic> householdData) async {
-    try {
-      final response = await http.post(
-        Uri.parse(baseUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'action': 'addHousehold',
-          ...householdData,
-        }),
-      );
+class FormService {
+  static const String baseUrl = 'http://127.0.0.1:90/BDRRM';
 
-      if (response.statusCode == 201) {
-        print('Household added successfully');
-      } else {
-        print('Failed to add household: ${response.body}');
+  static Future<int> saveAndGetHousehold(Household household) async {
+    final url = Uri.parse('$baseUrl/save_household.php');
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(household.toJson()),
+    );
+
+    if (response.statusCode == 200) {
+      try {
+        var jsonResponse = jsonDecode(response.body);
+        if (jsonResponse.containsKey('id')) {
+          print(jsonResponse['id']);
+          return jsonResponse['id'];
+        } else {
+          throw Exception('Server response does not contain id field');
+        }
+      } catch (e) {
+        print('saveAndGEt Error decoding JSON: $e');
+        throw Exception('Failed to parse server response');
       }
-    } catch (e) {
-      print('Error adding household: $e');
+    } else {
+      print('Failed to save household: ${response.statusCode}');
+      throw Exception('Failed to save household');
     }
   }
 
+  static Future<bool> saveHouseholdHead(HouseholdHead householdHead) async {
+    final url = Uri.parse('$baseUrl/save_household_head.php');
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode(householdHead.toJson()),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      // Print the response body for debugging
+      print('Response body for SERVICE HEAD: ${response.body}');
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error saving household: $e');
+      return false;
+    }
+  }
+
+  static Future<bool> saveHouseholdMember(List<HouseholdMember> members) async {
+    final url = Uri.parse('$baseUrl/save_household_member.php');
+    try {
+      // Convert each member to JSON and send as a batch request
+      final List<Map<String, dynamic>> membersJson =
+          members.map((member) => member.toJson()).toList();
+      final response = await http.post(
+        url,
+        body: jsonEncode({'rows': membersJson}),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      print('Response body for saveHouseholdMember: ${response.body}');
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error saving household members: $e');
+      return false;
+    }
+  }
 }

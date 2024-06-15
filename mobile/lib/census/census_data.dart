@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/census/census_edit.dart';
 import 'package:mobile/census/census_form.dart';
+import 'package:mobile/model/household_table_model.dart';
 import 'package:mobile/screens/main_screen.dart';
 import 'package:mobile/widgets/census_header_widget.dart';
 
@@ -13,7 +15,7 @@ class CensusData extends StatefulWidget {
 }
 
 class _CensusDataState extends State<CensusData> {
-  List households = [];
+  List<HouseholdTableModel> households = [];
 
   @override
   void initState() {
@@ -21,25 +23,43 @@ class _CensusDataState extends State<CensusData> {
     fetchHouseholds();
   }
 
-Future<void> fetchHouseholds() async {
-  try {
-    //change to 10.0.2.2 if emulator
-    final response = await http.get(Uri.parse('http://127.0.0.1:90/BDRRM/households.php'));
-    if (response.statusCode == 200) {
-      setState(() {
-        households = json.decode(response.body);
-      });
-    } else {
-      print('Failed to load households. Status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
-      throw Exception('Failed to load households');
+  Future<void> fetchHouseholds() async {
+    try {
+      final response = await http.get(Uri.parse('http://127.0.0.1:90/BDRRM/households.php'));
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = json.decode(response.body);
+        setState(() {
+          households = jsonResponse.map((data) => HouseholdTableModel.fromJson(data)).toList();
+        });
+      } else {
+        print('Failed to load households. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to load households');
+      }
+    } catch (e) {
+      print('Error: $e');
     }
-  } catch (e) {
-    print('Error: $e');
   }
-}
 
-
+  Future<void> deleteHousehold(HouseholdTableModel household) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:90/BDRRM/delete_household.php'),
+        body: json.encode({'id': household.id}),
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          households.remove(household);
+        });
+      } else {
+        print('Failed to delete household. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to delete household');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
   Widget paddedCell(String text, {bool isHeader = false}) {
     return Padding(
@@ -48,11 +68,13 @@ Future<void> fetchHouseholds() async {
         text,
         textAlign: TextAlign.left,
         style: TextStyle(
-            fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
-            fontSize: isHeader ? 14 : 12),
+          fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
+          fontSize: isHeader ? 14 : 12,
+        ),
       ),
     );
   }
+
   Widget buildHeaderRow() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40.0),
@@ -74,27 +96,40 @@ Future<void> fetchHouseholds() async {
     );
   }
 
-  Widget buildRow(Map<String, dynamic> household) {
+  Widget buildRow(HouseholdTableModel household) {
+    final headMember = household.members.firstWhere((member) => member.hhMemberType == 'Head', orElse: () => Member.empty());
+    print('Building row for household: ${household.waterSource}');
     return ExpansionTile(
       title: Row(
         children: [
-          Expanded(child: paddedCell(household['name'])),
-          Expanded(child: paddedCell(household['address'])),
-          Expanded(child: paddedCell(household['age'].toString())),
-          Expanded(child: paddedCell(household['occupation'])),
-          Expanded(child: paddedCell(household['number'])),
-          Expanded(child: paddedCell(household['civil_status'])),
-          Expanded(child: paddedCell(household['date_of_birth'])),
-          Expanded(child: paddedCell(household['religion'])),
-          Expanded(child: paddedCell(household['special_group'])),
-          Expanded(child: paddedCell(household['hh_member_type'])),
+          Expanded(child: paddedCell(headMember.name)),
+          Expanded(child: paddedCell(household.address)),
+          Expanded(child: paddedCell(headMember.age.toString())),
+          Expanded(child: paddedCell(headMember.occupation)),
+          Expanded(child: paddedCell(headMember.number)),
+          Expanded(child: paddedCell(headMember.civilStatus)),
+          Expanded(child: paddedCell(headMember.dateOfBirth)),
+          Expanded(child: paddedCell(headMember.religion)),
+          Expanded(child: paddedCell(headMember.specialGroup)),
+          Expanded(child: paddedCell(headMember.hhMemberType)),
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () => print('Edit'),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CensusEditForm(
+                    household: household,
+                  ),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.delete),
-            onPressed: () => print('Delete'),
+            onPressed: () async {
+              await deleteHousehold(household);
+            },
           ),
         ],
       ),
@@ -117,19 +152,21 @@ Future<void> fetchHouseholds() async {
                   9: FlexColumnWidth(),
                   10: FlexColumnWidth(),
                 },
-                children: household['members'].map<TableRow>((member) {
+                children: household.members
+                    .where((member) => member.hhMemberType == 'Member')
+                    .map((member) {
                   return TableRow(
                     children: [
-                      TableCell(child: paddedCell(member['name'])),
-                      TableCell(child: paddedCell(member['address'])),
-                      TableCell(child: paddedCell(member['age'].toString())),
-                      TableCell(child: paddedCell(member['occupation'])),
-                      TableCell(child: paddedCell(member['number'])),
-                      TableCell(child: paddedCell(member['civil_status'])),
-                      TableCell(child: paddedCell(member['date_of_birth'])),
-                      TableCell(child: paddedCell(member['religion'])),
-                      TableCell(child: paddedCell(member['special_group'])),
-                      TableCell(child: paddedCell(member['hh_member_type'])),
+                      TableCell(child: paddedCell(member.name)),
+                      TableCell(child: paddedCell(member.address)),
+                      TableCell(child: paddedCell(member.age.toString())),
+                      TableCell(child: paddedCell(member.occupation)),
+                      TableCell(child: paddedCell(member.number)),
+                      TableCell(child: paddedCell(member.civilStatus)),
+                      TableCell(child: paddedCell(member.dateOfBirth)),
+                      TableCell(child: paddedCell(member.religion)),
+                      TableCell(child: paddedCell(member.specialGroup)),
+                      TableCell(child: paddedCell(member.hhMemberType)),
                       TableCell(child: paddedCell('')),
                     ],
                   );
@@ -138,46 +175,31 @@ Future<void> fetchHouseholds() async {
               const SizedBox(height: 20),
               Row(
                 children: [
-                  Expanded(
-                      child: paddedCell(
-                          "Source of Water: ${household['water_source']}")),
-                  Expanded(
-                      child: paddedCell(
-                          "Garbage Disposal: ${household['garbage_disposal']}")),
+                  Expanded(child: paddedCell("Source of Water: ${household.waterSource}")),
+                  Expanded(child: paddedCell("Garbage Disposal: ${household.garbageDisposal}")),
                 ],
               ),
               Row(
                 children: [
-                  Expanded(
-                      child: paddedCell(
-                          "Status of House: ${household['house_status']}")),
-                  Expanded(
-                      child: paddedCell(
-                          "Toilet Facility: ${household['toilet_facility']}")),
+                  Expanded(child: paddedCell("Status of House: ${household.houseStatus}")),
+                  Expanded(child: paddedCell("Toilet Facility: ${household.toiletFacility}")),
                 ],
               ),
               Row(
                 children: [
-                  Expanded(
-                      child: paddedCell(
-                          "Housing Materials: ${household['housing_material']}")),
-                  Expanded(
-                      child: paddedCell(
-                          "Communication: ${household['communication']}")),
+                  Expanded(child: paddedCell("Housing Materials: ${household.housingMaterial}")),
+                  Expanded(child: paddedCell("Communication: ${household.communication}")),
                 ],
               ),
               Row(
                 children: [
-                  Expanded(
-                      child: paddedCell("HH with: ${household['hh_with']}")),
-                  Expanded(child: paddedCell("Income: ${household['income']}")),
+                  Expanded(child: paddedCell("HH with: ${household.hhWith}")),
+                  Expanded(child: paddedCell("Income: ${household.income}")),
                 ],
               ),
               Row(
                 children: [
-                  Expanded(
-                      child: paddedCell(
-                          "HH with Electricity: ${household['hh_with_electricity']}")),
+                  Expanded(child: paddedCell("HH with Electricity: ${household.hhWithElectricity}")),
                 ],
               ),
             ],
@@ -203,7 +225,7 @@ Future<void> fetchHouseholds() async {
         elevation: 0,
         toolbarHeight: 40,
         backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -217,10 +239,11 @@ Future<void> fetchHouseholds() async {
           ),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const CensusHeaderWidget(headerText: "Census Data List"),
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40.0),
+              padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 8.0),
               child: Text(
                 "*All user data in this application is strictly confidential, including usernames, personal information, and activity. We implement strong security measures and comply with the Philippine Data Privacy Act of 2012 (Republic Act 10173) to safeguard your privacy. THE FOLLOWING DATA MUST STRICTLY BE CONFIDENTIAL.*",
                 style: TextStyle(
@@ -229,6 +252,7 @@ Future<void> fetchHouseholds() async {
                 ),
               ),
             ),
+            const SizedBox(height: 8.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -255,9 +279,7 @@ Future<void> fetchHouseholds() async {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
             const Divider(thickness: 2),
-            // Table Header
             buildHeaderRow(),
             const Divider(thickness: 2),
             Expanded(
