@@ -29,12 +29,13 @@ class HouseholdMember {
     this.hhMemberType  = 'Member',
     this.householdId,
     this.lot,
-    this.zone
+    this.zone, int? id
   });
 
   // Deserialize from JSON
   factory HouseholdMember.fromJson(Map<String, dynamic> json) {
     return HouseholdMember(
+      id: int.parse(json['id']),
       name: json['name'],
       address: '${json['lot']} ${json['zone']}',
       age: json['age'],
@@ -53,6 +54,7 @@ class HouseholdMember {
   // Serialize to JSON
   Map<String, dynamic> toJson() {
     return {
+      'id' : id, 
       'name': name,
       'address': address,
       'age': age,

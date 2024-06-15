@@ -29,13 +29,14 @@ class HouseholdHead {
     this.hhMemberType  = 'Head',
     this.householdId,
     this.lot,
-    this.zone
+    this.zone, int? id
     
   });
 
   factory HouseholdHead.fromJson(Map<String, dynamic> json) {
     return HouseholdHead(
      // Adjust according to your API response
+     id: int.parse(json['id']),
       name: json['name'],
       address: '${json['lot']} ${json['zone']}',
       age: json['age'],
@@ -57,6 +58,7 @@ class HouseholdHead {
 
   Map<String, dynamic> toJson() {
     return {
+      'id':id, 
       'name': name,
       'address': address,
       'age': age,

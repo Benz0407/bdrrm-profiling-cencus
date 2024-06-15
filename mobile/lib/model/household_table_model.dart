@@ -1,7 +1,9 @@
 class HouseholdTableModel {
-  final id; 
+  final id;
   final String name;
   final String address;
+  String? lot;
+  String? zone;
   final String age;
   final String occupation;
   final String number;
@@ -26,6 +28,8 @@ class HouseholdTableModel {
     required this.id,
     required this.name,
     required this.address,
+    this.lot,
+    this.zone,
     required this.age,
     required this.occupation,
     required this.number,
@@ -54,6 +58,8 @@ class HouseholdTableModel {
       id: json['id'] ?? '',
       name: json['name'] ?? '',
       address: json['address'] ?? '',
+      lot: _extractLot(json['address'] ?? ''),
+      zone: _extractZone(json['address'] ?? ''),
       age: json['age'] ?? '',
       occupation: json['occupation'] ?? '',
       number: json['number'] ?? '',
@@ -77,11 +83,27 @@ class HouseholdTableModel {
       hhWithElectricity: json['hhWithElectricity'] ?? '',
     );
   }
+  // Helper function to extract lot from address
+  static String _extractLot(String address) {
+    // Logic to extract lot, assuming format is "Lot [lot number], Zone [zone]"
+    final parts = address.split(', ');
+    return parts.isNotEmpty ? parts[0].trim() : '';
+  }
+
+  // Helper function to extract zone from address
+  static String _extractZone(String address) {
+    // Logic to extract zone, assuming format is "Lot [lot number], Zone [zone]"
+    final parts = address.split(', ');
+    return parts.length > 1 ? parts[1].trim() : '';
+  }
 }
 
 class Member {
+  int? id;
   final String name;
-  final String address;
+  final String address; // Original combined address
+  String? lot; // Separate lot
+  String? zone; // Separate zone
   final String age;
   final String gender;
   final String occupation;
@@ -93,8 +115,11 @@ class Member {
   final String hhMemberType;
 
   Member({
+    this.id,
     required this.name,
-    required this.address,
+    required this.address, // Original combined address
+    this.lot, // Separate lot
+    this.zone, // Se
     required this.age,
     required this.gender,
     required this.occupation,
@@ -122,8 +147,11 @@ class Member {
   factory Member.fromJson(Map<String, dynamic> json) {
     // Handle null values by providing default or empty values
     return Member(
+      id: int.parse(json['id']),
       name: json['name'] ?? '',
       address: json['address'] ?? '',
+      lot: _extractLot(json['address'] ?? ''),
+      zone: _extractZone(json['address'] ?? ''),
       age: json['age'] ?? '',
       gender: json['gender'] ?? '',
       occupation: json['occupation'] ?? '',
@@ -134,5 +162,17 @@ class Member {
       specialGroup: json['special_group'] ?? '',
       hhMemberType: json['hh_member_type'] ?? '',
     );
+  }
+  static String _extractLot(String address) {
+    // Logic to extract lot, assuming format is "Lot [lot number], Zone [zone]"
+    final parts = address.split(', ');
+    return parts.isNotEmpty ? parts[0].trim() : '';
+  }
+
+  // Helper function to extract zone from address
+  static String _extractZone(String address) {
+    // Logic to extract zone, assuming format is "Lot [lot number], Zone [zone]"
+    final parts = address.split(', ');
+    return parts.length > 1 ? parts[1].trim() : '';
   }
 }

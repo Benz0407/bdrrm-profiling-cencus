@@ -58,6 +58,8 @@ class CensusEditFormState extends State<CensusEditForm> {
 
   householdHead = headMember != null
       ? HouseholdHead(
+          lot: headMember.lot,
+          zone: headMember.zone,
           name: headMember.name,
           age: headMember.age,
           gender: headMember.gender,
@@ -87,6 +89,8 @@ class CensusEditFormState extends State<CensusEditForm> {
   householdMembers = widget.household.members
       .where((member) => member.hhMemberType == 'Member')
       .map((member) => HouseholdMember(
+            lot: member.lot,
+            zone: member.zone, 
             name: member.name,
             age: member.age,
             gender: member.gender,
@@ -144,9 +148,9 @@ class CensusEditFormState extends State<CensusEditForm> {
       income: householdHeadAmenities.income,
     );
 
-    // Save household data and get the generated id
-    int householdId =
-        await FormService.saveAndGetHousehold(amenitiesData);
+    // update household data and get the generated id
+    bool householdId =
+        await FormService.updateHousehold(amenitiesData, amenitiesData.id); 
 
     // Instantiate Household object with form data
     HouseholdHead headData = HouseholdHead(
@@ -159,8 +163,6 @@ class CensusEditFormState extends State<CensusEditForm> {
       dateOfBirth: householdHead.dateOfBirth,
       religion: householdHead.religion,
       specialGroup: householdHead.specialGroup,
-      hhMemberType: 'Head',
-      householdId: householdId,
     );
 
     // List to store HouseholdMember objects
@@ -178,8 +180,6 @@ class CensusEditFormState extends State<CensusEditForm> {
         dateOfBirth: householdMembers[i].dateOfBirth,
         religion: householdMembers[i].religion,
         specialGroup: householdMembers[i].specialGroup,
-        hhMemberType: 'Member',
-        householdId: householdId,
       );
 
       // Add memberData to membersData list
@@ -187,10 +187,10 @@ class CensusEditFormState extends State<CensusEditForm> {
     }
 
     // Save household member data
-    bool membersSaved = await FormService.saveHouseholdMember(membersData);
+    bool membersSaved = await FormService.updateHouseholdMembers(membersData);
 
     // Save household head data
-    bool headSaved = await FormService.saveHouseholdHead(headData);
+    bool headSaved = await FormService.updateHouseholdHead(headData);
 
     // Check if all data saved successfully
     if (headSaved && membersSaved) {

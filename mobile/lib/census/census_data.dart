@@ -97,7 +97,7 @@ class _CensusDataState extends State<CensusData> {
   }
 
   Widget buildRow(HouseholdTableModel household) {
-    final headMember = household.members.firstWhere((member) => member.hhMemberType == 'Head', orElse: () => Member.empty());
+    final headMember = household.members.firstWhere((member) => member.hhMemberType == 'Head');
     print('Building row for household: ${household.waterSource}');
     return ExpansionTile(
       title: Row(
