@@ -24,11 +24,10 @@ class CensusEditFormState extends State<CensusEditForm> {
   late Household householdHeadAmenities = Household();
   List<HouseholdMember> householdMembers = [];
   List<GlobalKey<HouseholdMemberFormState>> householdMemberFormKeys = [];
+  List<int?> removedMemberIds = [];  // Track removed member IDs
 
-  final GlobalKey<HouseholdHeadFormState> householdHeadFormKey =
-      GlobalKey<HouseholdHeadFormState>();
-  final GlobalKey<HouseholdAmenitiesFormState> householdAmenitiesFormKey =
-      GlobalKey<HouseholdAmenitiesFormState>();
+  final GlobalKey<HouseholdHeadFormState> householdHeadFormKey = GlobalKey<HouseholdHeadFormState>();
+  final GlobalKey<HouseholdAmenitiesFormState> householdAmenitiesFormKey = GlobalKey<HouseholdAmenitiesFormState>();
 
   @override
   void initState() {
@@ -53,8 +52,7 @@ class CensusEditFormState extends State<CensusEditForm> {
 
   void initializeForm() {
     // Initialize household head and amenities with data from widget.household
-    Member headMember = widget.household.members
-        .firstWhere((member) => member.hhMemberType == 'Head');
+    Member headMember = widget.household.members.firstWhere((member) => member.hhMemberType == 'Head');
 
     householdHead = headMember != null
         ? HouseholdHead(
@@ -70,12 +68,9 @@ class CensusEditFormState extends State<CensusEditForm> {
             dateOfBirth: headMember.dateOfBirth,
             religion: headMember.religion,
             specialGroup: headMember.specialGroup,
-            // hhMemberType: headMember.hhMemberType,
+            hhMemberType: headMember.hhMemberType,
             householdId: headMember.householdId)
         : HouseholdHead(); // Default empty constructor
-
-    print("Head id from initialize: ${headMember.id}");
-    print("household head id from initialize: ${headMember.householdId}");
 
     householdHeadAmenities = Household(
       id: widget.household.id,
@@ -91,24 +86,24 @@ class CensusEditFormState extends State<CensusEditForm> {
     );
 
     // Initialize household members with data from widget.household.members
-    householdMembers = widget.household.members
-        .where((member) => member.hhMemberType == 'Member')
-        .map((member) => HouseholdMember(
-            id: member.id,
-            lot: member.lot,
-            zone: member.zone,
-            name: member.name,
-            age: member.age,
-            gender: member.gender,
-            occupation: member.occupation,
-            number: member.number,
-            civilStatus: member.civilStatus,
-            dateOfBirth: member.dateOfBirth,
-            religion: member.religion,
-            specialGroup: member.specialGroup,
-            hhMemberType: member.hhMemberType,
-            householdId: member.householdId))
-        .toList();
+householdMembers = widget.household.members
+    .where((member) => member.hhMemberType == 'Member')
+    .map((member) => HouseholdMember(
+        id: member.id,
+        lot: member.lot,
+        zone: member.zone,
+        name: member.name,
+        age: member.age,
+        gender: member.gender,
+        occupation: member.occupation,
+        number: member.number,
+        civilStatus: member.civilStatus,
+        dateOfBirth: member.dateOfBirth,
+        religion: member.religion,
+        specialGroup: member.specialGroup,
+        hhMemberType: member.hhMemberType,
+        householdId: member.householdId))
+    .toList();
 
     // Initialize form keys for household members
     householdMemberFormKeys = List.generate(
@@ -125,6 +120,9 @@ class CensusEditFormState extends State<CensusEditForm> {
 
   void removeHouseholdMember(int index) {
     setState(() {
+      if (householdMembers[index].id != null) {
+        removedMemberIds.add(householdMembers[index].id);
+      }
       householdMembers.removeAt(index);
       householdMemberFormKeys.removeAt(index);
     });
@@ -147,7 +145,7 @@ Future<void> saveForm() async {
   for (var key in householdMemberFormKeys) {
     key.currentState?.updateMember();
   }
-  
+
   // Prepare Household Amenities Data
   Household amenitiesData = Household(
     id: widget.household.id,
@@ -176,8 +174,7 @@ Future<void> saveForm() async {
   }
 
   // Update Household Head
-  Member headMember = widget.household.members
-      .firstWhere((member) => member.hhMemberType == 'Head');
+  Member headMember = widget.household.members.firstWhere((member) => member.hhMemberType == 'Head');
 
   HouseholdHead headData = HouseholdHead(
     id: headMember.id,
@@ -191,6 +188,7 @@ Future<void> saveForm() async {
     dateOfBirth: householdHead.dateOfBirth,
     religion: householdHead.religion,
     specialGroup: householdHead.specialGroup,
+    hhMemberType: householdHead.hhMemberType,
     householdId: headMember.householdId,
   );
 
@@ -209,29 +207,32 @@ Future<void> saveForm() async {
   // List to store HouseholdMember objects
   List<HouseholdMember> membersData = [];
 
-  // Convert each HouseholdMember form data to HouseholdMember object
+  // Update existing members and collect member data
   for (var i = 0; i < householdMembers.length; i++) {
+    var member = householdMembers[i];
     HouseholdMember memberData = HouseholdMember(
-      id: householdMembers[i].id,
-      name: householdMembers[i].name,
-      address: '${householdMembers[i].lot}, ${householdMembers[i].zone}',
-      age: householdMembers[i].age,
-      gender: householdMembers[i].gender,
-      occupation: householdMembers[i].occupation,
-      number: householdMembers[i].number,
-      civilStatus: householdMembers[i].civilStatus,
-      dateOfBirth: householdMembers[i].dateOfBirth,
-      religion: householdMembers[i].religion,
-      specialGroup: householdMembers[i].specialGroup,
+      id: member.id,
+      name: member.name,
+      address: '${member.lot}, ${member.zone}',
+      age: member.age,
+      gender: member.gender,
+      occupation: member.occupation,
+      number: member.number,
+      civilStatus: member.civilStatus,
+      dateOfBirth: member.dateOfBirth,
+      religion: member.religion,
+      specialGroup: member.specialGroup,
+      hhMemberType: "Member",
       householdId: widget.household.id,
     );
+
     membersData.add(memberData);
   }
 
-  // Separate existing members (with id) and new members (without id)
+  // Separate existing and new members
   List<HouseholdMember> existingMembers = membersData.where((member) => member.id != null).toList();
   List<HouseholdMember> newMembers = membersData.where((member) => member.id == null).toList();
-
+  
   // Update existing members
   bool membersSaved = await FormService.updateHouseholdMembers(existingMembers);
 
@@ -258,8 +259,22 @@ Future<void> saveForm() async {
     return;
   }
 
+  // Remove deleted members
+  bool removedMembersDeleted = true;
+  if (removedMemberIds.isNotEmpty) {
+    removedMembersDeleted = await FormService.deleteHouseholdMembers(removedMemberIds);
+    if (!removedMembersDeleted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error removing household members'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   // Check if all data saved successfully
-  if (householdSaved && headSaved && membersSaved && newMembersSaved) {
+  if (householdSaved && headSaved && membersSaved && newMembersSaved && removedMembersDeleted) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Data saved successfully'),
@@ -277,6 +292,8 @@ Future<void> saveForm() async {
 }
 
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -284,7 +301,8 @@ Future<void> saveForm() async {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.push(context,MaterialPageRoute(builder: (context) => const CensusData())); 
+            
           },
         ),
         elevation: 0,
@@ -322,8 +340,7 @@ Future<void> saveForm() async {
                   children: [
                     const Text(
                       'Household Head',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
                     HouseholdHeadForm(
@@ -341,8 +358,7 @@ Future<void> saveForm() async {
                           index: index + 1,
                           member: member,
                           onRemove: () => removeHouseholdMember(index),
-                          onUpdate: (updatedMember) =>
-                              updateHouseholdMember(index, updatedMember),
+                          onUpdate: (updatedMember) => updateHouseholdMember(index, updatedMember),
                         );
                       }).toList(),
                     ),
@@ -361,8 +377,7 @@ Future<void> saveForm() async {
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
                               backgroundColor: Colors.blue,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 20.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
                               textStyle: const TextStyle(fontSize: 16.0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12.0),
@@ -375,8 +390,7 @@ Future<void> saveForm() async {
                     const SizedBox(height: 20),
                     const Text(
                       'Household Amenities and Characteristics',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
                     HouseholdAmenitiesForm(
@@ -404,8 +418,7 @@ Future<void> saveForm() async {
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
                               backgroundColor: Colors.blue,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 20.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
                               textStyle: const TextStyle(fontSize: 16.0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12.0),
@@ -417,18 +430,15 @@ Future<void> saveForm() async {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => const CensusData()),
+                                MaterialPageRoute(builder: (context) => const CensusData()),
                               );
                             },
-                            icon: const Icon(Icons.cancel_outlined,
-                                color: Colors.white),
+                            icon: const Icon(Icons.cancel_outlined, color: Colors.white),
                             label: const Text('Cancel'),
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
                               backgroundColor: Colors.blue,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 20.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
                               textStyle: const TextStyle(fontSize: 16.0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12.0),

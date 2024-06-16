@@ -144,6 +144,24 @@ class FormService {
       return false;
     }
   }
+static Future<bool> deleteHouseholdMembers(List<int?> memberIds) async {
+  final url = Uri.parse('$baseUrl/remove_household_members.php');
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'memberIds': memberIds}),
+  );
+
+  if (response.statusCode == 200) {
+    final responseBody = jsonDecode(response.body);
+    print('Response: $responseBody');
+    return responseBody['success'];
+  } else {
+    print('Error: ${response.statusCode} - ${response.reasonPhrase}');
+    print('Response body: ${response.body}');
+    return false;
+  }
+}
 
 
 }

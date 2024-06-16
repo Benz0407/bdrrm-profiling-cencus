@@ -27,7 +27,7 @@ class HouseholdMember {
     this.dateOfBirth,
     this.religion,
     this.specialGroup,
-    this.hhMemberType = 'Member',
+    this.hhMemberType,
     this.householdId,
     this.lot,
     this.zone

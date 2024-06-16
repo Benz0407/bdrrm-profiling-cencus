@@ -118,8 +118,8 @@ class _CensusFormState extends State<CensusForm> {
     for (var i = 0; i < householdMembers.length; i++) {
       String address =
           '${householdMembers[i].lot}, ${householdMembers[i].zone}';
-
       HouseholdMember memberData = HouseholdMember(
+        id: householdMembers[i].id, 
         name: householdMembers[i].name,
         address: address,
         age: householdMembers[i].age,
