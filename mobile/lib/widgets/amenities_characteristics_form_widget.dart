@@ -89,6 +89,7 @@ class HouseholdAmenitiesFormState extends State<HouseholdAmenitiesForm> {
     _hhWithElectricity = widget.amenities.hhWithElectricity;
     _houseStatus = widget.amenities.houseStatus;
     _incomeController = TextEditingController(text: widget.amenities.income);
+    _meansOfCommunication = widget.amenities.communication; 
   }
 
   void updateAmenities() {

@@ -1,5 +1,5 @@
 class HouseholdTableModel {
-  final id;
+  final int? id;
   final String name;
   final String address;
   String? lot;
@@ -13,6 +13,7 @@ class HouseholdTableModel {
   final String specialGroup;
   final String gender;
   final String hhMemberType;
+  // int? householdId;
   final List<Member> members;
   final String waterSource;
   final String garbageDisposal;
@@ -39,6 +40,7 @@ class HouseholdTableModel {
     required this.specialGroup,
     required this.gender,
     required this.hhMemberType,
+    // this.householdId,
     required this.members,
     required this.waterSource,
     required this.garbageDisposal,
@@ -52,10 +54,8 @@ class HouseholdTableModel {
   });
 
   factory HouseholdTableModel.fromJson(Map<String, dynamic> json) {
-    // print('Parsing Household: $json');
-    // Handle null values by empty values
     return HouseholdTableModel(
-      id: json['id'] ?? '',
+      id: int.parse(json['id']),
       name: json['name'] ?? '',
       address: json['address'] ?? '',
       lot: _extractLot(json['address'] ?? ''),
@@ -69,6 +69,7 @@ class HouseholdTableModel {
       specialGroup: json['special_group'] ?? '',
       gender: json['gender'] ?? '',
       hhMemberType: json['hh_member_type'] ?? '',
+      // householdId: int.parse(json['household_id']),
       members: (json['members'] as List? ?? [])
           .map((e) => Member.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -101,9 +102,9 @@ class HouseholdTableModel {
 class Member {
   int? id;
   final String name;
-  final String address; // Original combined address
-  String? lot; // Separate lot
-  String? zone; // Separate zone
+  final String address; 
+  String? lot; 
+  String? zone; 
   final String age;
   final String gender;
   final String occupation;
@@ -113,13 +114,14 @@ class Member {
   final String religion;
   final String specialGroup;
   final String hhMemberType;
+  int? householdId; 
 
   Member({
     this.id,
     required this.name,
-    required this.address, // Original combined address
-    this.lot, // Separate lot
-    this.zone, // Se
+    required this.address,
+    this.lot, 
+    this.zone,
     required this.age,
     required this.gender,
     required this.occupation,
@@ -129,6 +131,7 @@ class Member {
     required this.religion,
     required this.specialGroup,
     required this.hhMemberType,
+    this.householdId
   });
 
   Member.empty()
@@ -161,6 +164,7 @@ class Member {
       religion: json['religion'] ?? '',
       specialGroup: json['special_group'] ?? '',
       hhMemberType: json['hh_member_type'] ?? '',
+      householdId: int.parse(json['household_id']),
     );
   }
   static String _extractLot(String address) {

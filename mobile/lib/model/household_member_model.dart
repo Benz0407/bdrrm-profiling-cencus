@@ -11,12 +11,13 @@ class HouseholdMember {
   String? occupation;
   String? lot;
   String? zone;
-  String hhMemberType; 
+  String? hhMemberType; 
   int? householdId;
   String? address;  
 
   HouseholdMember({
- this.name,
+    this.id,
+    this.name,
     this.address,
     this.age,
     this.gender,
@@ -26,10 +27,10 @@ class HouseholdMember {
     this.dateOfBirth,
     this.religion,
     this.specialGroup,
-    this.hhMemberType  = 'Member',
+    this.hhMemberType = 'Member',
     this.householdId,
     this.lot,
-    this.zone, int? id
+    this.zone
   });
 
   // Deserialize from JSON
@@ -47,7 +48,7 @@ class HouseholdMember {
       religion: json['religion'],
       specialGroup: json['special_group'],
       hhMemberType: json['hh_member_type'],
-      householdId:int.parse(json['household_id']), 
+      householdId: int.parse(json['household_id']), 
     );
   }
 

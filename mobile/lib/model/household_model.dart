@@ -26,14 +26,14 @@ class Household {
   factory Household.fromJson(Map<String, dynamic> json) {
     return Household(
       id:  int.parse(json['id']),
-      waterSource: json['waterSource'],
-      garbageDisposal: json['garbageDisposal'],
-      houseStatus: json['houseStatus'],
-      housingMaterial: json['housingMaterial'],
-      toiletFacility: json['toiletFacility'],
+      waterSource: json['water_source'],
+      garbageDisposal: json['garbage_disposal'],
+      houseStatus: json['house_status'],
+      housingMaterial: json['housing_material'],
+      toiletFacility: json['toilet_facility'],
       communication: json['communication'],
-      hhWith: json['hhWith'],
-      hhWithElectricity: json['hhWithElectricity'],
+      hhWith: json['hh_with'],
+      hhWithElectricity: json['hh_with_electricity'],
       income: json['income'],
     );
   }
@@ -41,16 +41,24 @@ class Household {
   Map<String, dynamic> toJson() {
     return {
       'id' : id, 
-      'waterSource': waterSource,
-      'garbageDisposal': garbageDisposal,
-      'houseStatus': houseStatus,
-      'housingMaterial': housingMaterial,
-      'toiletFacility': toiletFacility,
+      'water_source': waterSource,
+      'garbage_disposal': garbageDisposal,
+      'house_status': houseStatus,
+      'housing_material': housingMaterial,
+      'toilet_facility': toiletFacility,
       'communication': communication,
-      'hhWith': hhWith,
-      'hhWithElectricity': hhWithElectricity,
+      'hh_with': hhWith,
+      'hh_with_electricity': hhWithElectricity,
       'income': income,
     };
   }
+
+@override
+  String toString() {
+    return 'HouseholdAmenities{id: id, communication: $communication, garbageDisposal: $garbageDisposal, houseStatus: $houseStatus, housingMaterial: $housingMaterial, '
+        'toiletFacility: $toiletFacility, communication: $communication, hhWith: $hhWith, '
+        'hhWithElectricity: $hhWithElectricity, income: $income}';
+  }
+
 
 }

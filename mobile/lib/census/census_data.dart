@@ -98,12 +98,11 @@ class _CensusDataState extends State<CensusData> {
 
   Widget buildRow(HouseholdTableModel household) {
     final headMember = household.members.firstWhere((member) => member.hhMemberType == 'Head');
-    print('Building row for household: ${household.waterSource}');
     return ExpansionTile(
       title: Row(
         children: [
           Expanded(child: paddedCell(headMember.name)),
-          Expanded(child: paddedCell(household.address)),
+          Expanded(child: paddedCell('${headMember.lot}, ${headMember.zone}')),
           Expanded(child: paddedCell(headMember.age.toString())),
           Expanded(child: paddedCell(headMember.occupation)),
           Expanded(child: paddedCell(headMember.number)),

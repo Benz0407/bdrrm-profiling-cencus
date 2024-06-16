@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/model/household_head_model.dart';
 import 'package:mobile/model/household_model.dart';
 import 'package:mobile/model/household_member_model.dart';
+import 'package:mobile/model/household_table_model.dart';
 
 class FormService {
   static const String baseUrl = 'http://127.0.0.1:90/BDRRM';
@@ -99,40 +100,6 @@ class FormService {
       return false;
     }
   }
-  // static Future<int> saveHousehold(Household household) async {
-  //   final url = Uri.parse('$baseUrl/update_household.php'); // Adjust URL endpoint for updating household
-
-  //   try {
-  //     final response = await http.post(
-  //       url,
-  //       headers: <String, String>{
-  //         'Content-Type': 'application/json; charset=UTF-8',
-  //       },
-  //       body: jsonEncode(household.toJson()),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //     try {
-  //       var jsonResponse = jsonDecode(response.body);
-  //       if (jsonResponse.containsKey('id')) {
-  //         print(jsonResponse['id']);
-  //         return jsonResponse['id'];
-  //       } else {
-  //         throw Exception('Server response does not contain id field');
-  //       }
-  //     } catch (e) {
-  //       print('saveAndGEt Error decoding JSON: $e');
-  //       throw Exception('Failed to parse server response');
-  //     }
-  //   } else {
-  //     print('Failed to save household: ${response.statusCode}');
-  //     throw Exception('Failed to save household');
-  //   }
-  //   } catch (e) {
-  //     print('Error updating household: $e');
-  //     throw Exception('Failed to save household');
-  //   }
-  // }
 
   // Update household head
   static Future<bool> updateHouseholdHead(HouseholdHead householdHead) async {
@@ -177,4 +144,6 @@ class FormService {
       return false;
     }
   }
+
+
 }
