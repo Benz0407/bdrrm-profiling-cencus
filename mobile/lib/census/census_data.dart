@@ -69,7 +69,7 @@ class _CensusDataState extends State<CensusData> {
         textAlign: TextAlign.left,
         style: TextStyle(
           fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
-          fontSize: isHeader ? 14 : 12,
+          fontSize: isHeader ? 14 : 12
         ),
       ),
     );
@@ -89,7 +89,7 @@ class _CensusDataState extends State<CensusData> {
           Expanded(child: paddedCell('Date of Birth', isHeader: true)),
           Expanded(child: paddedCell('Religion', isHeader: true)),
           Expanded(child: paddedCell('Special Group', isHeader: true)),
-          Expanded(child: paddedCell('HH Member Type', isHeader: true)),
+          Expanded(child: paddedCell('Member Type', isHeader: true)),
           Expanded(child: paddedCell('Actions', isHeader: true)),
         ],
       ),
@@ -98,40 +98,62 @@ class _CensusDataState extends State<CensusData> {
 
   Widget buildRow(HouseholdTableModel household) {
     final headMember = household.members.firstWhere((member) => member.hhMemberType == 'Head');
-    return ExpansionTile(
-      title: Row(
-        children: [
-          Expanded(child: paddedCell(headMember.name)),
-          Expanded(child: paddedCell('${headMember.lot}, ${headMember.zone}')),
-          Expanded(child: paddedCell(headMember.age.toString())),
-          Expanded(child: paddedCell(headMember.occupation)),
-          Expanded(child: paddedCell(headMember.number)),
-          Expanded(child: paddedCell(headMember.civilStatus)),
-          Expanded(child: paddedCell(headMember.dateOfBirth)),
-          Expanded(child: paddedCell(headMember.religion)),
-          Expanded(child: paddedCell(headMember.specialGroup)),
-          Expanded(child: paddedCell(headMember.hhMemberType)),
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CensusEditForm(
-                    household: household,
-                  ),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () async {
-              await deleteHousehold(household);
-            },
-          ),
-        ],
-      ),
+     return ExpansionTile(
+    title: Table(
+      columnWidths: const {
+        0: FlexColumnWidth(),
+        1: FlexColumnWidth(),
+        2: FlexColumnWidth(),
+        3: FlexColumnWidth(),
+        4: FlexColumnWidth(),
+        5: FlexColumnWidth(),
+        6: FlexColumnWidth(),
+        7: FlexColumnWidth(),
+        8: FlexColumnWidth(),
+        9: FlexColumnWidth(),
+        10: FixedColumnWidth(29.0), // for IconButton width
+        11: FixedColumnWidth(29.0), // for IconButton width
+      },
+      children: [
+        TableRow(
+          children: [
+            TableCell(child: paddedCell(headMember.name)),
+            TableCell(child: paddedCell('${headMember.lot}, ${headMember.zone}')),
+            TableCell(child: paddedCell(headMember.age.toString())),
+            TableCell(child: paddedCell(headMember.occupation)),
+            TableCell(child: paddedCell(headMember.number)),
+            TableCell(child: paddedCell(headMember.civilStatus)),
+            TableCell(child: paddedCell(headMember.dateOfBirth)),
+            TableCell(child: paddedCell(headMember.religion)),
+            TableCell(child: paddedCell(headMember.specialGroup)),
+            TableCell(child: paddedCell(headMember.hhMemberType)),
+            TableCell(
+              child: IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CensusEditForm(
+                        household: household,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            TableCell(
+              child: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () async {
+                  await deleteHousehold(household);
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),

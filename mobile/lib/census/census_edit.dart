@@ -70,7 +70,7 @@ class CensusEditFormState extends State<CensusEditForm> {
             specialGroup: headMember.specialGroup,
             hhMemberType: headMember.hhMemberType,
             householdId: headMember.householdId)
-        : HouseholdHead(); // Default empty constructor
+        : HouseholdHead(); 
 
     householdHeadAmenities = Household(
       id: widget.household.id,
@@ -232,7 +232,7 @@ Future<void> saveForm() async {
   // Separate existing and new members
   List<HouseholdMember> existingMembers = membersData.where((member) => member.id != null).toList();
   List<HouseholdMember> newMembers = membersData.where((member) => member.id == null).toList();
-  
+
   // Update existing members
   bool membersSaved = await FormService.updateHouseholdMembers(existingMembers);
 
