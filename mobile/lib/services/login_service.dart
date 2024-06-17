@@ -14,7 +14,7 @@ class LoginService with ChangeNotifier {
       "password": user.password,
     });
     // Print the body for debugging
-    print("Request body: $body");
+    // print("Request body: $body");
 
     try {
       final response = await http.post(url, headers: headers, body: body);
@@ -26,16 +26,16 @@ class LoginService with ChangeNotifier {
           notifyListeners();
           return true;
         } else {
-          print("Login failed: ${data['message']}");
+          // print("Login failed: ${data['message']}");
           return false;
         }
       } else {
-        print("loginProvider Server error: ${response.statusCode}");
-        print("Error message: ${response.body}");
+        // print("loginProvider Server error: ${response.statusCode}");
+        // print("Error message: ${response.body}");
         return false;
       }
     } catch (e) {
-      print("An error occurred: $e");
+      // print("An error occurred: $e");
       return false;
     }
   }

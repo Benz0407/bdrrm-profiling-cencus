@@ -16,16 +16,16 @@ class RegisterService with ChangeNotifier {
         },
         body: jsonEncode(user.toJson()),
       );
-      print("response.body ${response.body}");
+      // print("response.body ${response.body}");
       if (response.statusCode == 201) {
         // Successfully registered
-        print('User registered successfully');
+        // print('User registered successfully');
       } else {
         // Handle error
-        print('Failed to register user: ${response.body}');
+        // print('Failed to register user: ${response.body}');
       }
     } catch (e) {
-      print("error register $e");
+      // print("error register $e");
     }
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/model/user_model.dart';
 import 'package:mobile/screens/main_screen.dart';
-import 'package:mobile/screens/register_screen.dart';
 import 'package:mobile/services/login_service.dart';
 import 'package:provider/provider.dart';
 
@@ -19,10 +18,8 @@ class LoginScreenState extends State<LoginScreen> {
 
   bool isVisible = false;
 
-  //Here is our bool variable
   bool isLoginTrue = false;
 
-  //We have to create global key for our form
   final _formKey = GlobalKey<FormState>();
 
   late LoginService _loginService;
@@ -83,7 +80,7 @@ class LoginScreenState extends State<LoginScreen> {
               children: <Widget>[
                 // Logo
                 Image.asset(
-                  'assets/icons/logo1.png', // Replace with your logo asset path
+                  'assets/icons/logo1.png',
                   height: 100,
                 ),
                 const SizedBox(height: 20),
@@ -182,7 +179,6 @@ class LoginScreenState extends State<LoginScreen> {
                         hintText: "Password",
                         suffixIcon: IconButton(
                             onPressed: () {
-                              //In here we will create a click to show and hide the password a toggle button
                               setState(() {
                                 //toggle button
                                 isVisible = !isVisible;
@@ -219,7 +215,6 @@ class LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
-                          fontFamily: 'League Spartan',
                           fontWeight: FontWeight.w700,
                           height: 0,
                         ),
@@ -234,7 +229,7 @@ class LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         // Access the DefaultTabController and switch to the Register tab
                         DefaultTabController.of(context)
-                            .animateTo(1); // Assuming Register is at index 1
+                            .animateTo(1); 
                       },
                       child: const Text(
                         "SIGN UP",

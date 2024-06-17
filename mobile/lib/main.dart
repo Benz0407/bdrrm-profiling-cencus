@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:mobile/model/user_model.dart';
 import 'package:mobile/screens/landing_screen.dart';
 import 'package:mobile/const/constant.dart';
 import 'package:mobile/services/login_service.dart';
@@ -14,7 +13,6 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (context) => LoginService()),
         ChangeNotifierProvider(create: (_) => RegisterService()),
-        // Add other providers here if necessary
       ],
       child: const MyApp(),
     ),
@@ -35,15 +33,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final User user = User(); 
     return MaterialApp(
-      title: 'Dashborad UI',
+      title: 'BDRRM Application',
       debugShowCheckedModeBanner: false,
       scrollBehavior: NoThumbScrollBehavior().copyWith(scrollbars: false),
       theme: ThemeData(
         scaffoldBackgroundColor: backgroundColor,
       ),
-      // home: const MainScreen(),
       home: const LandingScreen(),
     );
   }

@@ -35,12 +35,12 @@ class _CensusDataState extends State<CensusData> {
           households = jsonResponse.map((data) => HouseholdTableModel.fromJson(data)).toList();
         });
       } else {
-        print('Failed to load households. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        // print('Failed to load households. Status code: ${response.statusCode}');
+        // print('Response body: ${response.body}');
         throw Exception('Failed to load households');
       }
     } catch (e) {
-      print('Error: $e');
+      // print('Error: $e');
     }
   }
 
@@ -55,12 +55,12 @@ class _CensusDataState extends State<CensusData> {
           households.remove(household);
         });
       } else {
-        print('Failed to delete household. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        // print('Failed to delete household. Status code: ${response.statusCode}');
+        // print('Response body: ${response.body}');
         throw Exception('Failed to delete household');
       }
     } catch (e) {
-      print('Error: $e');
+      // print('Error: $e');
     }
   }
 
@@ -313,7 +313,7 @@ class _CensusDataState extends State<CensusData> {
                 buildHeaderRow(),
                 const Divider(thickness: 2),
                 ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   itemCount: households.length,

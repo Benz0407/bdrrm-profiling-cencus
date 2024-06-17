@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/screens/login_screen.dart';
 import 'package:mobile/screens/register_screen.dart';
-import 'package:mobile/services/login_service.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -44,17 +43,16 @@ class _LandingScreenState extends State<LandingScreen> {
             ),
              body: TabBarView(
               children: [
-                // Center the form in LoginScreen
                 Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 400),
-                    child: const LoginScreen(), // Refactored the form into a separate widget
+                    child: const LoginScreen(), 
                   ),
                 ),
                 Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 400),
-                    child: const RegisterScreen(), // Assume similar form structure for registration
+                    child: const RegisterScreen(),
                   ),
                 ),
               ],

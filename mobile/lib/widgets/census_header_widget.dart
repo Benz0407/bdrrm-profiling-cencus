@@ -11,17 +11,16 @@ class CensusHeaderWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Existing row for logo and welcome message
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(width: 0),
+              const SizedBox(width: 0),
               Image.asset(
                 'assets/icons/logo1.png',
                 width: 200.0,
                 height: 150,
               ),
-              SizedBox(width: 0),
+              const SizedBox(width: 0),
               Flexible(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,12 +28,12 @@ class CensusHeaderWidget extends StatelessWidget {
                     Text(
                       //The the parameter passed in the method call
                       headerText,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 34,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 0),
+                    const SizedBox(height: 0),
                     Text(
                       'San Fernando, Camarines Sur, Barangay Bonifacio.',
                       style: TextStyle(

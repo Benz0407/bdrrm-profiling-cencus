@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/model/household_head_model.dart';
 import 'package:mobile/model/household_model.dart';
 import 'package:mobile/model/household_member_model.dart';
-import 'package:mobile/model/household_table_model.dart';
 
 class FormService {
   static const String baseUrl = 'http://127.0.0.1:90/BDRRM';
@@ -22,17 +21,17 @@ class FormService {
       try {
         var jsonResponse = jsonDecode(response.body);
         if (jsonResponse.containsKey('id')) {
-          print(jsonResponse['id']);
+          // print(jsonResponse['id']);
           return jsonResponse['id'];
         } else {
           throw Exception('Server response does not contain id field');
         }
       } catch (e) {
-        print('saveAndGEt Error decoding JSON: $e');
+        // print('saveAndGEt Error decoding JSON: $e');
         throw Exception('Failed to parse server response');
       }
     } else {
-      print('Failed to save household: ${response.statusCode}');
+      // print('Failed to save household: ${response.statusCode}');
       throw Exception('Failed to save household');
     }
   }
@@ -49,11 +48,11 @@ class FormService {
       );
 
       // Print the response body for debugging
-      print('Response body for SERVICE HEAD: ${response.body}');
+      // print('Response body for SERVICE HEAD: ${response.body}');
 
       return response.statusCode == 200;
     } catch (e) {
-      print('Error saving household: $e');
+      // print('Error saving household: $e');
       return false;
     }
   }
@@ -71,10 +70,10 @@ class FormService {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-      print('Response body for saveHouseholdMember: ${response.body}');
+      // print('Response body for saveHouseholdMember: ${response.body}');
       return response.statusCode == 200;
     } catch (e) {
-      print('Error saving household members: $e');
+      // print('Error saving household members: $e');
       return false;
     }
   }
@@ -92,11 +91,11 @@ class FormService {
       );
 
       // Print the response body for debugging
-      print('Response body for updateHousehold: ${response.body}');
+      // print('Response body for updateHousehold: ${response.body}');
 
       return response.statusCode == 200;
     } catch (e) {
-      print('Error updating household: $e');
+      // print('Error updating household: $e');
       return false;
     }
   }
@@ -114,11 +113,11 @@ class FormService {
       );
 
       // Print the response body for debugging
-      print('Response body for updateHouseholdHead: ${response.body}');
+      // print('Response body for updateHouseholdHead: ${response.body}');
 
       return response.statusCode == 200;
     } catch (e) {
-      print('Error updating household head: $e');
+      // print('Error updating household head: $e');
       return false;
     }
   }
@@ -137,10 +136,10 @@ class FormService {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-      print('Response body for updateHouseholdMembers: ${response.body}');
+      // print('Response body for updateHouseholdMembers: ${response.body}');
       return response.statusCode == 200;
     } catch (e) {
-      print('Error updating household members: $e');
+      // print('Error updating household members: $e');
       return false;
     }
   }

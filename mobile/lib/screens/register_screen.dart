@@ -16,7 +16,6 @@ class RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   String? _selectedUserType;
 
-  //We have to create global key for our form
   final _formKey = GlobalKey<FormState>();
   final _registerProvider = RegisterService();
 
@@ -58,7 +57,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   children: <Widget>[
                     // Logo
                     Image.asset(
-                      'assets/icons/logo1.png', // Make sure this path is correct
+                      'assets/icons/logo1.png',
                       height: 100,
                     ),
                     const SizedBox(height: 20),
@@ -186,7 +185,6 @@ class RegisterScreenState extends State<RegisterScreen> {
                             hintText: "Password",
                             suffixIcon: IconButton(
                                 onPressed: () {
-                                  //In here we will create a click to show and hide the password a toggle button
                                   setState(() {
                                     //toggle button
                                     isVisible = !isVisible;
@@ -216,7 +214,6 @@ class RegisterScreenState extends State<RegisterScreen> {
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
-                              fontFamily: 'League Spartan',
                               fontWeight: FontWeight.w700,
                               height: 0,
                             ),
@@ -231,7 +228,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                           onPressed: () {
                             // Access the DefaultTabController and switch to the Register tab
                             DefaultTabController.of(context)
-                                .animateTo(0); // Assuming Register is at index 1
+                                .animateTo(0);
                           },
                           child: const Text(
                             "SIGN IN",
