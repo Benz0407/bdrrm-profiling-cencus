@@ -32,8 +32,8 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
   String? selectedZone;
   String? selectedReligion;
   String? selectedCivilStatus;
-  String? selectedSpecialGroup; 
-  String? selectedGender; 
+  String? selectedSpecialGroup;
+  String? selectedGender;
 
   Timer? _debounce;
 
@@ -288,10 +288,7 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
           child: buildDropdownFormField(
             labelText: 'Gender',
             value: selectedGender,
-            items: [
-              'Male',
-              'Female'
-            ],
+            items: ['Male', 'Female'],
             onChanged: (newValue) {
               setState(() {
                 selectedGender = newValue;
@@ -306,12 +303,11 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
             labelText: 'Religion',
             value: selectedReligion,
             items: [
-              'Catholic',
+              'Roman Catholic',
               'Protestant',
               'Iglesia ni Kristo',
               'Aglipay',
               'Islam',
-              'Others (Specify)'
             ],
             onChanged: (newValue) {
               setState(() {
@@ -332,13 +328,7 @@ class HouseholdHeadFormState extends State<HouseholdHeadForm> {
           child: buildDropdownFormField(
             labelText: 'Special Group',
             value: selectedSpecialGroup,
-            items: [
-              'Senior Citizen',
-              'Pregnant',
-              'Minor',
-              'PWD',
-              'None'
-            ],
+            items: ['Senior Citizen', 'Pregnant', 'Minor', 'PWD', 'None'],
             onChanged: (newValue) {
               setState(() {
                 selectedSpecialGroup = newValue;

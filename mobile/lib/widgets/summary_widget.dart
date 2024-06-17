@@ -1,11 +1,13 @@
 import 'package:mobile/const/constant.dart';
+import 'package:mobile/model/user_model.dart';
 import 'package:mobile/widgets/pie_chart_widget.dart';
 import 'package:mobile/widgets/scheduled_widget.dart';
 import 'package:mobile/widgets/summary_details.dart';
 import 'package:flutter/material.dart';
 
 class SummaryWidget extends StatelessWidget {
-  const SummaryWidget({super.key});
+  final User user;
+  const SummaryWidget({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {

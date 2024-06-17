@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/model/user_model.dart';
 
 class HeaderWidget extends StatelessWidget {
-  const HeaderWidget({super.key});
+  final User user;
+  const HeaderWidget({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class HeaderWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Welcome To Profiling, Admin!',
+                      'Welcome To Profiling, ${user.userName}!',
                       style: TextStyle(
                         fontSize: 34,
                         fontWeight: FontWeight.bold,

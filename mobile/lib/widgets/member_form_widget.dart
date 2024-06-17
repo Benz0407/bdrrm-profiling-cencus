@@ -363,7 +363,6 @@ class HouseholdMemberFormState extends State<HouseholdMemberForm> {
               'Iglesia ni Kristo',
               'Aglipay',
               'Islam',
-              'Others (Specify)'
             ].map((status) => DropdownMenuItem(
                       value: status,
                       child: Text(status),

@@ -4,11 +4,13 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/census/census_edit.dart';
 import 'package:mobile/census/census_form.dart';
 import 'package:mobile/model/household_table_model.dart';
+import 'package:mobile/model/user_model.dart';
 import 'package:mobile/screens/main_screen.dart';
 import 'package:mobile/widgets/census_header_widget.dart';
 
 class CensusData extends StatefulWidget {
-  const CensusData({super.key});
+  final User user; 
+  const CensusData({super.key, required this.user});
 
   @override
   State<CensusData> createState() => _CensusDataState();
@@ -16,6 +18,7 @@ class CensusData extends StatefulWidget {
 
 class _CensusDataState extends State<CensusData> {
   List<HouseholdTableModel> households = [];
+  late final User user; 
 
   @override
   void initState() {
@@ -136,6 +139,7 @@ class _CensusDataState extends State<CensusData> {
                     MaterialPageRoute(
                       builder: (context) => CensusEditForm(
                         household: household,
+                        user: widget.user,
                       ),
                     ),
                   );
@@ -239,86 +243,93 @@ class _CensusDataState extends State<CensusData> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const MainScreen()),
+              MaterialPageRoute(builder: (context) => MainScreen(user: widget.user)),
             );
           },
         ),
         elevation: 0,
         toolbarHeight: 40,
         backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: const AssetImage('assets/images/bg.png'),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.5),
-              BlendMode.dstATop,
-            ),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const CensusHeaderWidget(headerText: "Census Data List"),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 8.0),
-              child: Text(
-                "*All user data in this application is strictly confidential, including usernames, personal information, and activity. We implement strong security measures and comply with the Philippine Data Privacy Act of 2012 (Republic Act 10173) to safeguard your privacy. THE FOLLOWING DATA MUST STRICTLY BE CONFIDENTIAL.*",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.red,
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: const AssetImage('assets/images/bg.png'),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(0.5),
+                  BlendMode.dstATop,
                 ),
               ),
             ),
-            const SizedBox(height: 8.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+          ),
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextButton.icon(
-                  icon: const Icon(
-                    Icons.note_add_outlined,
-                    color: Colors.blue,
-                    size: 35,
-                  ),
-                  label: const Text(
-                    'Create',
+                const CensusHeaderWidget(headerText: "Census Data List"),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 8.0),
+                  child: Text(
+                    "*All user data in this application is strictly confidential, including usernames, personal information, and activity. We implement strong security measures and comply with the Philippine Data Privacy Act of 2012 (Republic Act 10173) to safeguard your privacy. THE FOLLOWING DATA MUST STRICTLY BE CONFIDENTIAL.*",
                     style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      fontSize: 12,
+                      color: Colors.red,
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const CensusForm()),
+                ),
+                const SizedBox(height: 8.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton.icon(
+                      icon: const Icon(
+                        Icons.note_add_outlined,
+                        color: Colors.blue,
+                        size: 35,
+                      ),
+                      label: const Text(
+                        'Create',
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => CensusForm(user: widget.user)),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const Divider(thickness: 2),
+                buildHeaderRow(),
+                const Divider(thickness: 2),
+                ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  itemCount: households.length,
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        buildRow(households[index]),
+                        const Divider(thickness: 1),
+                      ],
                     );
                   },
                 ),
               ],
             ),
-            const Divider(thickness: 2),
-            buildHeaderRow(),
-            const Divider(thickness: 2),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                itemCount: households.length,
-                itemBuilder: (context, index) {
-                  return Column(
-                    children: [
-                      buildRow(households[index]),
-                      const Divider(thickness: 1),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
