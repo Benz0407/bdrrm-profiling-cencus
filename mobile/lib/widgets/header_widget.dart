@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/model/user_model.dart';
+import 'package:mobile/util/responsive.dart';
 
 class HeaderWidget extends StatelessWidget {
   final User user;
@@ -12,44 +13,79 @@ class HeaderWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Existing row for logo and welcome message
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          // Adjust layout based on screen size
+          Responsive.isMobile(context)
+              ? _buildMobileHeader(context)
+              : _buildDesktopHeader(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileHeader(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Image.asset(
+          'assets/icons/logo1.png',
+          width: 200.0,
+          height: 150.0,
+        ),
+        const SizedBox(height: 16.0),
+        Text(
+          'Welcome To Profiling, ${user.userName}!',
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8.0),
+        Text(
+          'San Fernando, Camarines Sur, Barangay Bonifacio.',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.lightBlue[400],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDesktopHeader(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Image.asset(
+          'assets/icons/logo1.png',
+          width: 200.0,
+          height: 150.0,
+        ),
+        const SizedBox(width: 16.0),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(width: 0),
-              Image.asset(
-                'assets/icons/logo1.png',
-                width: 200.0,
-                height: 150,
+              Text(
+                'Welcome To Profiling, ${user.userName}!',
+                style: const TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              SizedBox(width: 0),
-              Flexible(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome To Profiling, ${user.userName}!',
-                      style: TextStyle(
-                        fontSize: 34,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 0),
-                    Text(
-                      'San Fernando, Camarines Sur, Barangay Bonifacio.',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.lightBlue[400],
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: 8.0),
+              Text(
+                'San Fernando, Camarines Sur, Barangay Bonifacio.',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.lightBlue[400],
                 ),
               ),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

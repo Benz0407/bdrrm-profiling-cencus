@@ -10,7 +10,6 @@ class LandingScreen extends StatefulWidget {
 }
 
 class _LandingScreenState extends State<LandingScreen> {
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -30,10 +29,10 @@ class _LandingScreenState extends State<LandingScreen> {
             ),
           ),
           Scaffold(
-            backgroundColor: Colors.transparent, 
+            backgroundColor: Colors.transparent,
             appBar: AppBar(
-              backgroundColor: Colors.transparent, 
-              elevation: 0, 
+              backgroundColor: Colors.transparent,
+              elevation: 0,
               bottom: const TabBar(
                 tabs: [
                   Tab(text: 'Login'),
@@ -41,12 +40,12 @@ class _LandingScreenState extends State<LandingScreen> {
                 ],
               ),
             ),
-             body: TabBarView(
+            body: TabBarView(
               children: [
                 Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 400),
-                    child: const LoginScreen(), 
+                    child: const LoginScreen(),
                   ),
                 ),
                 Center(
@@ -57,7 +56,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 ),
               ],
             ),
-          ),
+          )
         ],
       ),
     );

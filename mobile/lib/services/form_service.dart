@@ -1,14 +1,23 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/model/household_head_model.dart';
 import 'package:mobile/model/household_model.dart';
 import 'package:mobile/model/household_member_model.dart';
 
+  String getBaseUrl() {
+    if (kIsWeb) {
+      return 'http://127.0.0.1:90/BDRRM';
+    } else {
+      return 'http://10.0.2.2:90/BDRRM';
+    }
+  }
+
 class FormService {
-  static const String baseUrl = 'http://127.0.0.1:90/BDRRM';
+  
 
   static Future<int> saveAndGetHousehold(Household household) async {
-    final url = Uri.parse('$baseUrl/save_household.php');
+    final url = Uri.parse('${getBaseUrl()}/save_household.php');
     final response = await http.post(
       url,
       headers: <String, String>{
@@ -37,7 +46,7 @@ class FormService {
   }
 
   static Future<bool> saveHouseholdHead(HouseholdHead householdHead) async {
-    final url = Uri.parse('$baseUrl/save_household_head.php');
+    final url = Uri.parse('${getBaseUrl()}/save_household_head.php');
     try {
       final response = await http.post(
         url,
@@ -58,7 +67,7 @@ class FormService {
   }
 
   static Future<bool> saveHouseholdMember(List<HouseholdMember> members) async {
-    final url = Uri.parse('$baseUrl/save_household_member.php');
+    final url = Uri.parse('${getBaseUrl()}/save_household_member.php');
     try {
       // Convert each member to JSON and send as a batch request
       final List<Map<String, dynamic>> membersJson =
@@ -80,7 +89,7 @@ class FormService {
 
   // Update household
   static Future<bool> updateHousehold(Household household, int? id) async {
-    final url = Uri.parse('$baseUrl/update_household.php');
+    final url = Uri.parse('${getBaseUrl()}/update_household.php');
     try {
       final response = await http.post(
         url,
@@ -102,7 +111,7 @@ class FormService {
 
   // Update household head
   static Future<bool> updateHouseholdHead(HouseholdHead householdHead) async {
-    final url = Uri.parse('$baseUrl/update_household_head.php');
+    final url = Uri.parse('${getBaseUrl()}/update_household_head.php');
     try {
       final response = await http.post(
         url,
@@ -124,7 +133,7 @@ class FormService {
 
   // Update household members
   static Future<bool> updateHouseholdMembers(List<HouseholdMember> members) async {
-    final url = Uri.parse('$baseUrl/update_household_member.php');
+    final url = Uri.parse('${getBaseUrl()}/update_household_member.php');
     try {
       // Convert each member to JSON and send as a batch request
       final List<Map<String, dynamic>> membersJson =
@@ -145,7 +154,7 @@ class FormService {
   }
   
 static Future<bool> deleteHouseholdMembers(List<int?> memberIds) async {
-  final url = Uri.parse('$baseUrl/remove_household_members.php');
+  final url = Uri.parse('${getBaseUrl()}/remove_household_members.php');
   final response = await http.post(
     url,
     headers: {'Content-Type': 'application/json'},

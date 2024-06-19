@@ -86,9 +86,6 @@ class HouseholdMemberFormState extends State<HouseholdMemberForm> {
     );
   }
 
-
-
-
   void _onFieldChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
@@ -107,17 +104,18 @@ class HouseholdMemberFormState extends State<HouseholdMemberForm> {
       },
     );
   }
-    String get name => _nameController.text;
+
+  String get name => _nameController.text;
   String? get lot => selectedLot;
   String? get zone => selectedZone;
   String get age => _ageController.text;
   String? get gender => selectedGender;
-   String get occupation => _occupationController.text;
-   String get number => _numberController.text;
+  String get occupation => _occupationController.text;
+  String get number => _numberController.text;
   String? get civilStatus => selectedCivilStatus;
-     String get dateOfBirth => _dateController.text;
-     String? get religion => selectedReligion;
-     String? get specialGroup => selectedSpecialGroup;
+  String get dateOfBirth => _dateController.text;
+  String? get religion => selectedReligion;
+  String? get specialGroup => selectedSpecialGroup;
 
   Widget _buildLayoutForScreenSize(BuildContext context) {
     if (Responsive.isDesktop(context)) {
@@ -363,7 +361,8 @@ class HouseholdMemberFormState extends State<HouseholdMemberForm> {
               'Iglesia ni Kristo',
               'Aglipay',
               'Islam',
-            ].map((status) => DropdownMenuItem(
+            ]
+                .map((status) => DropdownMenuItem(
                       value: status,
                       child: Text(status),
                     ))

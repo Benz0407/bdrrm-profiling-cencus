@@ -1,12 +1,20 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 import 'package:mobile/model/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+  String getBaseUrl() {
+    if (kIsWeb) {
+      return 'http://127.0.0.1:90/BDRRM';
+    } else {
+      return 'http://10.0.2.2:90/BDRRM';
+    }
+  }
+
 class LoginService with ChangeNotifier {
   Future<bool> loginUser(User user) async {
-    final url = Uri.parse("http://127.0.0.1:90/BDRRM/login.php");
+    final url = Uri.parse("${getBaseUrl()}/login.php");
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       "userType": user.userType,

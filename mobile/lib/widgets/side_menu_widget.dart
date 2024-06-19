@@ -50,7 +50,6 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
               // Check if it's the "Census" item (index 1)
               Navigator.push(
                 context,
-                // MaterialPageRoute(builder: (context) => const CensusMain()),
                 MaterialPageRoute(
                     builder: (context) => CensusData(user: widget.user)),
               );
